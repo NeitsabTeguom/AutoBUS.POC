@@ -1,5 +1,5 @@
 # AutoBUS
-open source
+open source SaaS software
   - message broker
   - application module
   - deployment management
