@@ -1,0 +1,8 @@
+Formatig in JSon
+
+Header
+  |_ Type (message type int32)
+  |_ Version (message type version int32)
+  |_ Forward logic : delivered by master server extracted from workflow
+Content
+  |_ (message data)
