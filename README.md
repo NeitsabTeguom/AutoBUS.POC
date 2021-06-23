@@ -4,4 +4,4 @@ An all in one SaaS software
   - application module
   - deployment management
   - loadbalancing
-  - workflow and its wysiwyg
+  - workflow and its wysiwyg UI
