@@ -199,16 +199,6 @@ namespace AutoBUS
             /// <param name="data"></param>
             public void VersionCheck(long SocketId, string RequestId, byte[] data)
             {
-
-                string VER = broker.ConvertBytesToString(data);
-
-                if (VER == null)
-                {
-                    this.broker.ResponseBadRequest(SocketId, RequestId, "missing version in body.");
-                    return;
-                }
-
-
             }
         }
     }
