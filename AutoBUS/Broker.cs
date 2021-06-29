@@ -96,8 +96,8 @@ namespace AutoBUS
         /// <param name="description">Status description</param>
         public void ResponseBadRequest(ref HttpListenerContext hlc, string description)
         {
-            hlc.Response.StatusCode = 400;
-            hlc.Response.StatusDescription = ("Bad request " + description).Trim();
+            //hlc.Response.StatusCode = 400;
+            //hlc.Response.StatusDescription = ("Bad request " + description).Trim();
         }
 
         public void Logger(Exception ex)

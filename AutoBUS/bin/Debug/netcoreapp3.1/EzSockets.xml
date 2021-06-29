@@ -1,0 +1,429 @@
+<?xml version="1.0"?>
+<doc>
+    <assembly>
+        <name>EzSockets</name>
+    </assembly>
+    <members>
+        <member name="T:EzSockets.EzEventsListener">
+            <summary>
+            Class to handle different events from sockets.
+            </summary>
+        </member>
+        <member name="F:EzSockets.EzEventsListener.OnDataSendHandler">
+            <summary>
+            Called when data is sent.
+            </summary>
+        </member>
+        <member name="M:EzSockets.EzEventsListener.OnDataSend(EzSockets.EzSocket,System.Byte[])">
+            <summary>
+            Trigger the OnDataSend event.
+            </summary>
+            <param name="socket">Socket the event originated from.</param>
+            <param name="data">Data sent.</param>
+        </member>
+        <member name="F:EzSockets.EzEventsListener.OnDataReadHandler">
+            <summary>
+            Called when data is read.
+            </summary>
+        </member>
+        <member name="M:EzSockets.EzEventsListener.OnDataRead(EzSockets.EzSocket,System.Byte[])">
+            <summary>
+            Trigger the OnDataRead event.
+            </summary>
+            <param name="socket">Socket the event originated from.</param>
+            <param name="data">Data read.</param>
+        </member>
+        <member name="F:EzSockets.EzEventsListener.OnMessageSendHandler">
+            <summary>
+            Called when a whole framed message is sent.
+            </summary>
+        </member>
+        <member name="M:EzSockets.EzEventsListener.OnMessageSend(EzSockets.EzSocket,System.Byte[])">
+            <summary>
+            Trigger the OnMessageSend event.
+            </summary>
+            <param name="socket">Socket the event originated from.</param>
+            <param name="data">Data sent.</param>
+        </member>
+        <member name="F:EzSockets.EzEventsListener.OnMessageReadHandler">
+            <summary>
+            Called when a whole framed message is read.
+            </summary>
+        </member>
+        <member name="M:EzSockets.EzEventsListener.OnMessageRead(EzSockets.EzSocket,System.Byte[])">
+            <summary>
+            Trigger the OnMessageRead event.
+            </summary>
+            <param name="socket">Socket the event originated from.</param>
+            <param name="data">Data read.</param>
+        </member>
+        <member name="F:EzSockets.EzEventsListener.OnNewConnectionHandler">
+            <summary>
+            Called when a new connection is created.
+            </summary>
+        </member>
+        <member name="M:EzSockets.EzEventsListener.OnNewConnection(EzSockets.EzSocket)">
+            <summary>
+            Trigger the OnNewConnection event.
+            </summary>
+            <param name="socket">Socket the event originated from.</param>
+        </member>
+        <member name="F:EzSockets.EzEventsListener.OnConnectionClosedHandler">
+            <summary>
+            Called when a connection is closed.
+            </summary>
+        </member>
+        <member name="M:EzSockets.EzEventsListener.OnConnectionClosed(EzSockets.EzSocket)">
+            <summary>
+            Trigger the OnConnectionClosed event.
+            </summary>
+            <param name="socket">Socket the event originated from.</param>
+        </member>
+        <member name="F:EzSockets.EzEventsListener.OnExceptionHandler">
+            <summary>
+            Called on exceptions.
+            </summary>
+            <returns>How to handle the exception.</returns>
+        </member>
+        <member name="M:EzSockets.EzEventsListener.OnException(EzSockets.EzSocket,System.Exception)">
+            <summary>
+            Trigger the OnException event.
+            </summary>
+            <param name="socket">Socket the event originated from.</param>
+            <param name="exception">Exception that triggered the event.</param>
+        </member>
+        <member name="T:EzSockets.EzSocket">
+            <summary>
+            A simple socket wrapper.
+            </summary>
+        </member>
+        <member name="F:EzSockets.EzSocket._eventsListener">
+            <summary>
+            Events handler.
+            </summary>
+        </member>
+        <member name="P:EzSockets.EzSocket.Client">
+            <summary>
+            The socket object we wrap.
+            </summary>
+        </member>
+        <member name="P:EzSockets.EzSocket.SocketId">
+            <summary>
+            Unique socket id.
+            </summary>
+        </member>
+        <member name="F:EzSockets.EzSocket.StringToBytes">
+            <summary>
+            Function used to convert string to bytes array.
+            Override this if you need different encoding.
+            </summary>
+        </member>
+        <member name="F:EzSockets.EzSocket.BytesToString">
+            <summary>
+            Function used to convert bytes array to string.
+            Override this if you need different encoding.
+            </summary>
+        </member>
+        <member name="P:EzSockets.EzSocket.Connected">
+            <summary>
+            Get if socket is connected.
+            </summary>
+        </member>
+        <member name="P:EzSockets.EzSocket.DataAvailable">
+            <summary>
+            Get if we currently have available for reading.
+            </summary>
+        </member>
+        <member name="P:EzSockets.EzSocket.AvailableDataLength">
+            <summary>
+            Get how many bytes we currently have available for reading.
+            </summary>
+        </member>
+        <member name="P:EzSockets.EzSocket.Stream">
+            <summary>
+            The network stream associated with this socket.
+            </summary>
+        </member>
+        <member name="F:EzSockets.EzSocket.MaxMessageSize">
+            <summary>
+            Max size, in bytes, for framed messages.
+            </summary>
+        </member>
+        <member name="F:EzSockets.EzSocket.UserData">
+            <summary>
+            Optional data you can attach to this socket.
+            </summary>
+        </member>
+        <member name="F:EzSockets.EzSocket.DefaultDestIp">
+            <summary>
+            Default IP to use when creating socket with dest ip == null.
+            </summary>
+        </member>
+        <member name="M:EzSockets.EzSocket.HandleException(System.Exception)">
+            <summary>
+            Handle exceptions.
+            </summary>
+        </member>
+        <member name="M:EzSockets.EzSocket.#ctor(System.String,System.Int32,EzSockets.IEzEventsListener)">
+            <summary>
+            Connect to given IP and port.
+            </summary>
+            <param name="ip">IP to connect to or null to use localhost.</param>
+            <param name="port">Port to connect to.</param>
+            <param name="eventsListener">Object to handle socket events.</param>
+        </member>
+        <member name="M:EzSockets.EzSocket.#ctor(System.Net.Sockets.TcpClient,EzSockets.IEzEventsListener)">
+            <summary>
+            Create the socket from existing connected socket.
+            </summary>
+            <param name="socket">TCP client to wrap.</param>
+            <param name="eventsListener">Object to handle socket events.</param>
+        </member>
+        <member name="M:EzSockets.EzSocket.Finalize">
+            <summary>
+            Socket destructor.
+            </summary>
+        </member>
+        <member name="M:EzSockets.EzSocket.Close">
+            <summary>
+            Close the connection.
+            </summary>
+        </member>
+        <member name="M:EzSockets.EzSocket.SendRaw(System.String)">
+            <summary>
+            Send data to remote device.
+            </summary>
+        </member>
+        <member name="M:EzSockets.EzSocket.SendRaw(System.Byte[])">
+            <summary>
+            Send data to remote device.
+            </summary>
+        </member>
+        <member name="M:EzSockets.EzSocket.SendRawAsync(System.String)">
+            <summary>
+            Send data to remote device.
+            </summary>
+        </member>
+        <member name="M:EzSockets.EzSocket.SendRawAsync(System.Byte[])">
+            <summary>
+            Send data to remote device.
+            </summary>
+        </member>
+        <member name="M:EzSockets.EzSocket.ReadRaw(System.String@)">
+            <summary>
+            Read data from remote device.
+            </summary>
+            <param name="data">Data received, as string.</param>
+        </member>
+        <member name="M:EzSockets.EzSocket.ReadRaw(System.Byte[]@)">
+            <summary>
+            Read data from remote device.
+            </summary>
+            <param name="byteData">Data received, as bytes array.</param>
+        </member>
+        <member name="M:EzSockets.EzSocket.ReadRawAsyncStr">
+            <summary>
+            Read data from remote device.
+            </summary>
+        </member>
+        <member name="M:EzSockets.EzSocket.ReadRawAsync">
+            <summary>
+            Read data from remote device.
+            </summary>
+        </member>
+        <member name="M:EzSockets.EzSocket.EncodeBufferAndSize(System.Byte[],System.Byte[]@)">
+            <summary>
+            Encode buffer with its length into a single byte array.
+            Result will be 4 bytes of buffer size + buffer.
+            </summary>
+        </member>
+        <member name="M:EzSockets.EzSocket.SendMessage(System.Byte[])">
+            <summary>
+            Send a single message with size, to be read as whole from the other side.
+            </summary>
+        </member>
+        <member name="M:EzSockets.EzSocket.SendMessage(System.String)">
+            <summary>
+            Send a single message with size, to be read as whole from the other side.
+            </summary>
+        </member>
+        <member name="M:EzSockets.EzSocket.SendMessageAsync(System.Byte[])">
+            <summary>
+            Send a single message with size, to be read as whole from the other side.
+            </summary>
+        </member>
+        <member name="M:EzSockets.EzSocket.SendMessageAsync(System.String)">
+            <summary>
+            Send a single message with size, to be read as whole from the other side.
+            </summary>
+        </member>
+        <member name="M:EzSockets.EzSocket.ReadExactly(System.Int32)">
+            <summary>
+            Read until a given buffer is full.
+            </summary>
+        </member>
+        <member name="M:EzSockets.EzSocket.ReadExactlyAsync(System.Int32)">
+            <summary>
+            Read until a given buffer is full.
+            </summary>
+        </member>
+        <member name="M:EzSockets.EzSocket.BuffToInt(System.Byte[])">
+            <summary>
+            Convert bytes array to int.
+            </summary>
+        </member>
+        <member name="M:EzSockets.EzSocket.ReadInt">
+            <summary>
+            Read a single integer from stream.
+            </summary>
+        </member>
+        <member name="M:EzSockets.EzSocket.ReadIntAsync">
+            <summary>
+            Read a single integer from stream.
+            </summary>
+        </member>
+        <member name="M:EzSockets.EzSocket.ReadMessage">
+            <summary>
+            read a single message as a whole.
+            Must be message sent via SendMessage().
+            </summary>
+        </member>
+        <member name="M:EzSockets.EzSocket.ReadMessageStr">
+            <summary>
+            read a single message as a whole and convert to string.
+            Must be message sent via SendMessage().
+            </summary>
+        </member>
+        <member name="M:EzSockets.EzSocket.ReadMessageAsync">
+            <summary>
+            read a single message as a whole.
+            Must be message sent via SendMessage().
+            </summary>
+        </member>
+        <member name="M:EzSockets.EzSocket.ReadMessageStrAsync">
+            <summary>
+            read a single message as a whole and convert to string.
+            Must be message sent via SendMessage().
+            </summary>
+        </member>
+        <member name="M:EzSockets.EzSocket.StartReadingMessages">
+            <summary>
+            Read messages in endless async loop, triggering events for every new message.
+            </summary>
+        </member>
+        <member name="M:EzSockets.EzSocket.StopReadingMessages">
+            <summary>
+            Stop reading messages after 'StartReadingMessages' was called.
+            </summary>
+        </member>
+        <member name="T:EzSockets.EzSocketListener">
+            <summary>
+            Listen and accept new connections.
+            </summary>
+        </member>
+        <member name="P:EzSockets.EzSocketListener.EventsListener">
+            <summary>
+            The class that handle socket events.
+            </summary>
+        </member>
+        <member name="P:EzSockets.EzSocketListener.IsListening">
+            <summary>
+            Get if this listener is currently listening.
+            </summary>
+        </member>
+        <member name="P:EzSockets.EzSocketListener.Port">
+            <summary>
+            Port we are currently listening to (0 if not listening).
+            </summary>
+        </member>
+        <member name="M:EzSockets.EzSocketListener.#ctor(EzSockets.IEzEventsListener)">
+            <summary>
+            Create the sockets listener.
+            </summary>
+            <param name="eventsListener">Object to handle socket events.</param>
+        </member>
+        <member name="M:EzSockets.EzSocketListener.Finalize">
+            <summary>
+            Close socket listener.
+            </summary>
+        </member>
+        <member name="M:EzSockets.EzSocketListener.Listen(System.Int32)">
+            <summary>
+            Listen on port and accept connections.
+            </summary>
+            <param name="port">Port to listen to.</param>
+        </member>
+        <member name="M:EzSockets.EzSocketListener.ListenAsync(System.Int32)">
+            <summary>
+            Listen on port and accept connections in background.
+            </summary>
+            <param name="port">Port to listen to.</param>
+        </member>
+        <member name="M:EzSockets.EzSocketListener.StopListening">
+            <summary>
+            Stop listening to port.
+            </summary>
+        </member>
+        <member name="T:EzSockets.ExceptionHandlerResponse">
+            <summary>
+            How to handle exceptions when raised.
+            </summary>
+        </member>
+        <member name="F:EzSockets.ExceptionHandlerResponse.Silence">
+            <summary>
+            Silence the exception.
+            </summary>
+        </member>
+        <member name="F:EzSockets.ExceptionHandlerResponse.Rethrow">
+            <summary>
+            Rethrow exception.
+            </summary>
+        </member>
+        <member name="F:EzSockets.ExceptionHandlerResponse.CloseSocket">
+            <summary>
+            Close socket without throwing exception.
+            </summary>
+        </member>
+        <member name="T:EzSockets.IEzEventsListener">
+            <summary>
+            Class to handle different events from sockets.
+            </summary>
+        </member>
+        <member name="M:EzSockets.IEzEventsListener.OnDataSend(EzSockets.EzSocket,System.Byte[])">
+            <summary>
+            Called when data is sent.
+            </summary>
+        </member>
+        <member name="M:EzSockets.IEzEventsListener.OnDataRead(EzSockets.EzSocket,System.Byte[])">
+            <summary>
+            Called when data is read.
+            </summary>
+        </member>
+        <member name="M:EzSockets.IEzEventsListener.OnMessageSend(EzSockets.EzSocket,System.Byte[])">
+            <summary>
+            Called when a whole framed message is sent.
+            </summary>
+        </member>
+        <member name="M:EzSockets.IEzEventsListener.OnMessageRead(EzSockets.EzSocket,System.Byte[])">
+            <summary>
+            Called when a whole framed message is read.
+            </summary>
+        </member>
+        <member name="M:EzSockets.IEzEventsListener.OnNewConnection(EzSockets.EzSocket)">
+            <summary>
+            Called when a new connection is created.
+            </summary>
+        </member>
+        <member name="M:EzSockets.IEzEventsListener.OnConnectionClosed(EzSockets.EzSocket)">
+            <summary>
+            Called when a connection is closed.
+            </summary>
+        </member>
+        <member name="M:EzSockets.IEzEventsListener.OnException(EzSockets.EzSocket,System.Exception)">
+            <summary>
+            Called on exceptions.
+            </summary>
+            <returns>How to handle the exception.</returns>
+        </member>
+    </members>
+</doc>

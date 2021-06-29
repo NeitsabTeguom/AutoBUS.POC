@@ -1,0 +1,9 @@
+C:\PERSO\Projet\AutoBUS\sources\develop\EzSockets\bin\Debug\netstandard2.0\EzSockets.xml
+C:\PERSO\Projet\AutoBUS\sources\develop\EzSockets\bin\Debug\netstandard2.0\EzSockets.deps.json
+C:\PERSO\Projet\AutoBUS\sources\develop\EzSockets\bin\Debug\netstandard2.0\EzSockets.dll
+C:\PERSO\Projet\AutoBUS\sources\develop\EzSockets\bin\Debug\netstandard2.0\EzSockets.pdb
+C:\PERSO\Projet\AutoBUS\sources\develop\EzSockets\obj\Debug\netstandard2.0\EzSockets.AssemblyInfoInputs.cache
+C:\PERSO\Projet\AutoBUS\sources\develop\EzSockets\obj\Debug\netstandard2.0\EzSockets.AssemblyInfo.cs
+C:\PERSO\Projet\AutoBUS\sources\develop\EzSockets\obj\Debug\netstandard2.0\EzSockets.csproj.CoreCompileInputs.cache
+C:\PERSO\Projet\AutoBUS\sources\develop\EzSockets\obj\Debug\netstandard2.0\EzSockets.dll
+C:\PERSO\Projet\AutoBUS\sources\develop\EzSockets\obj\Debug\netstandard2.0\EzSockets.pdb

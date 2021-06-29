@@ -41,3 +41,6 @@ C:\PERSO\Projet\AutoBUS\sources\develop\AutoBUS\obj\Debug\netcoreapp3.1\AutoBUS.
 C:\PERSO\Projet\AutoBUS\sources\develop\AutoBUS\obj\Debug\netcoreapp3.1\AutoBUS.dll
 C:\PERSO\Projet\AutoBUS\sources\develop\AutoBUS\obj\Debug\netcoreapp3.1\AutoBUS.pdb
 C:\PERSO\Projet\AutoBUS\sources\develop\AutoBUS\obj\Debug\netcoreapp3.1\AutoBUS.genruntimeconfig.cache
+C:\PERSO\Projet\AutoBUS\sources\develop\AutoBUS\bin\Debug\netcoreapp3.1\EzSockets.dll
+C:\PERSO\Projet\AutoBUS\sources\develop\AutoBUS\bin\Debug\netcoreapp3.1\EzSockets.pdb
+C:\PERSO\Projet\AutoBUS\sources\develop\AutoBUS\bin\Debug\netcoreapp3.1\EzSockets.xml

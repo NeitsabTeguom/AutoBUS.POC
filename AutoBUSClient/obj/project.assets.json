@@ -410,6 +410,16 @@
             "rid": "win"
           }
         }
+      },
+      "EzSockets/1.0.1": {
+        "type": "project",
+        "framework": ".NETStandard,Version=v2.0",
+        "compile": {
+          "bin/placeholder/EzSockets.dll": {}
+        },
+        "runtime": {
+          "bin/placeholder/EzSockets.dll": {}
+        }
       }
     }
   },
@@ -1008,10 +1018,16 @@
         "useSharedDesignerContext.txt",
         "version.txt"
       ]
+    },
+    "EzSockets/1.0.1": {
+      "type": "project",
+      "path": "../EzSockets/EzSockets.csproj",
+      "msbuildProject": "../EzSockets/EzSockets.csproj"
     }
   },
   "projectFileDependencyGroups": {
     ".NETCoreApp,Version=v3.1": [
+      "EzSockets >= 1.0.1",
       "Microsoft.Extensions.Hosting >= 3.1.14"
     ]
   },
@@ -1045,7 +1061,11 @@
       "frameworks": {
         "netcoreapp3.1": {
           "targetAlias": "netcoreapp3.1",
-          "projectReferences": {}
+          "projectReferences": {
+            "C:\\PERSO\\Projet\\AutoBUS\\sources\\develop\\EzSockets\\EzSockets.csproj": {
+              "projectPath": "C:\\PERSO\\Projet\\AutoBUS\\sources\\develop\\EzSockets\\EzSockets.csproj"
+            }
+          }
         }
       },
       "warningProperties": {

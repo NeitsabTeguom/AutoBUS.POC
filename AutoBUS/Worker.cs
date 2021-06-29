@@ -11,26 +11,29 @@ namespace AutoBUS
     public class Worker : BackgroundService
     {
 
-        private HttpWebServer ws = null;
+        private SocketMiddleware sm = null;
 
         private readonly ILogger<Worker> _logger;
 
         public Worker(ILogger<Worker> logger)
         {
             _logger = logger;
-            this.ws = new HttpWebServer(new string[] { "http://localhost:8080/" });
-            this.ws.Run();
+            this.sm = new SocketMiddleware();
+            this.sm.Start(11000);
         }
 
         protected override async Task ExecuteAsync(CancellationToken stoppingToken)
         {
-            /*
             while (!stoppingToken.IsCancellationRequested)
             {
-                _logger.LogInformation("Worker running at: {time}", DateTimeOffset.Now);
+                //_logger.LogInformation("Worker running at: {time}", DateTimeOffset.Now);
                 await Task.Delay(1000, stoppingToken);
             }
-            */
+            
+            if(stoppingToken.IsCancellationRequested)
+            {
+                this.sm.Stop();
+            }
         }
     }
 }
