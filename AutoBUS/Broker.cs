@@ -1,4 +1,5 @@
-﻿using System;
+﻿using EzSockets;
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Net;
@@ -8,19 +9,29 @@ using System.Text;
 namespace AutoBUS
 {
     // Message broker
-    class Broker
+    public class Broker
     {
+        private SocketMiddleware sm;
+
         // Messages methods
         private Dictionary<string, MethodInfo> msf = new Dictionary<string, MethodInfo>();
         // Messages class instance, where to call functions
-        private Messages ms;
+        private Messages.Receive mr;
+        private Messages.Receive m;
 
-        public Broker()
+        // UTF8 par defaut
+        private Encoding encoding = Encoding.UTF8;
+
+        private const UInt16 BrokerVersion = 1;
+
+        public Broker(SocketMiddleware sm)
         {
+            this.sm = sm;
+
             // For more time response, using "reflexion" instead "switch case"
             // but we nned to load functions in Messages class before
 
-            Type mType = (typeof(Messages));
+            Type mType = (typeof(Messages.Receive));
             // Get the public methods.
             MethodInfo[] mis = mType.GetMethods(BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly);
             foreach(MethodInfo mi in mis)
@@ -29,64 +40,85 @@ namespace AutoBUS
             }
             Console.WriteLine("Broker running...");
 
-            this.ms = new Messages(this);
+            this.mr = new Messages.Receive(this);
         }
 
         /// <summary>
         /// Message Deliver
         /// </summary>
         /// <param name="hlc">HttpListenerContext Request / Response</param>
-        public void Deliver(ref HttpListenerContext hlc)
+        public void Deliver(long SocketId, byte[] buff)
         {
-            // MSGTYPE as function calling
-            string MSGTYPE = hlc.Request.Headers["X-API-MSGTYPE"];
+            string MessageName;
+            string RequestId;
 
-            if (MSGTYPE == null)
+            int bodyBegin = this.GetHeader(
+                buff,
+                out MessageName,
+                out RequestId
+                );
+
+
+            // Check MessageName
+
+            if (MessageName == null)
             {
-                this.ResponseBadRequest(ref hlc, "missing X-API-MSGTYPE in header.");
+                this.ResponseBadRequest(SocketId, "", "missing MessageName.");
                 return;
             }
 
-            if(!msf.ContainsKey(MSGTYPE))
+            if(!msf.ContainsKey(MessageName))
             {
-                this.ResponseBadRequest(ref hlc, "unknow X-API-MSGTYPE.");
+                this.ResponseBadRequest(SocketId, "", "unknow MessageName.");
                 return;
             }
-            MethodInfo mf = msf[MSGTYPE];
+            MethodInfo mf = msf[MessageName];
+
+            // Check RequestId not null or empty
+
+            if (RequestId == null || RequestId.Trim() == "")
+            {
+                this.ResponseBadRequest(SocketId, "", "missing RequestId.");
+                return;
+            }
 
             try
             {
-                mf.Invoke(this.ms, new object[] { hlc });
+                byte[] data = new byte[buff.Length - bodyBegin];
+                Buffer.BlockCopy(buff, bodyBegin, data, 0, data.Length);
+
+                mf.Invoke(this.mr, new object[] { SocketId, RequestId, data });
             }
             catch(Exception ex){this.Logger(ex);}
-            /*
-            if (!request.HasEntityBody)
-            {
-                Console.WriteLine("No client data was sent with the request.");
-                return "KO";
-            }
-
-            if (request.ContentType != null)
-            {
-                Console.WriteLine("Client data content type {0}", request.ContentType);
-            }
-            Console.WriteLine("Client data content length {0}", request.ContentLength64);
-
-            */
-
         }
 
-        private string RequestBodyToString(ref HttpListenerContext hlc)
+
+        private int GetHeader(
+            byte[] buff, 
+            out string MessageName, 
+            out string RequestId
+            )
         {
-            string result = null;
+            int cursor = 0;
+            // 1 Message Name \n
+            this.GetHeaderParam(buff, ref cursor, out MessageName);
+            // 2 Request id \n
+            this.GetHeaderParam(buff, ref cursor, out RequestId);
 
-            try
+            return cursor;
+        }
+
+        public void GetHeaderParam(byte[] buff, ref int cursor, out string value)
+        {
+            value = "";
+            for (int i = cursor; i <= buff.Length; i++)
             {
-                result = (new StreamReader(hlc.Request.InputStream, hlc.Request.ContentEncoding)).ReadToEnd();
+                char c = Convert.ToChar(buff[i]);
+                cursor = i + 1;
+                if (c == '\n')
+                    break;
+                value += c;
             }
-            catch (Exception ex) { this.Logger(ex); }
-
-            return result;
         }
 
         /// <summary>
@@ -94,10 +126,24 @@ namespace AutoBUS
         /// </summary>
         /// <param name="hlc">HttpListenerContext Request / Response</param>
         /// <param name="description">Status description</param>
-        public void ResponseBadRequest(ref HttpListenerContext hlc, string description)
+        public void ResponseBadRequest(long SocketId, string RequestId, string description)
         {
-            //hlc.Response.StatusCode = 400;
-            //hlc.Response.StatusDescription = ("Bad request " + description).Trim();
+            this.sm.Send(SocketId, this.ReponseMessage(RequestId, 400, ("Bad request " + description).Trim()));
+        }
+
+        private byte[] ReponseMessage(string RequestId, UInt16 statusCode, string statusDescription = "")
+        {
+            return this.ConvertStringToBytes($"Response\n{RequestId}\n{statusCode}\n{statusDescription}".Trim() + "\n");
+        }
+
+        public byte[] ConvertStringToBytes(string msg)
+        {
+            return this.encoding.GetBytes(msg);
+        }
+
+        public string ConvertBytesToString(byte[] msg)
+        {
+            return this.encoding.GetString(msg);
         }
 
         public void Logger(Exception ex)
@@ -105,29 +151,64 @@ namespace AutoBUS
 
         }
 
-        private class Messages
+    }
+
+    namespace Messages
+    {
+        public class Receive1
         {
             private readonly Broker broker;
-            public Messages(Broker broker)
+            public Receive1(Broker broker)
             {
                 this.broker = broker;
                 Console.WriteLine("Messages waiting to be called...");
             }
 
             /// <summary>
-            /// Check client version
+            /// Check version
             /// </summary>
-            /// <param name="hlc">HttpListenerContext Request / Response</param>
-            public void VersionCheck(ref HttpListenerContext hlc)
+            /// <param name="SocketId"></param>
+            /// <param name="data"></param>
+            public void VersionCheck(long SocketId, string RequestId, byte[] data)
             {
-                // MSGTYPE as function calling
-                string VER = hlc.Request.Headers["X-API-VER"];
+
+                string VER = broker.ConvertBytesToString(data);
 
                 if (VER == null)
                 {
-                    this.broker.ResponseBadRequest(ref hlc, "missing X-API-VER in header.");
+                    this.broker.ResponseBadRequest(SocketId, RequestId, "missing version in body.");
                     return;
                 }
+
+
+            }
+        }
+        public class Send1
+        {
+            private readonly Broker broker;
+            public Send1(Broker broker)
+            {
+                this.broker = broker;
+                Console.WriteLine("Messages ready to be sent...");
+            }
+
+            /// <summary>
+            /// Check version
+            /// </summary>
+            /// <param name="SocketId"></param>
+            /// <param name="data"></param>
+            public void VersionCheck(long SocketId, string RequestId, byte[] data)
+            {
+
+                string VER = broker.ConvertBytesToString(data);
+
+                if (VER == null)
+                {
+                    this.broker.ResponseBadRequest(SocketId, RequestId, "missing version in body.");
+                    return;
+                }
+
+
             }
         }
     }

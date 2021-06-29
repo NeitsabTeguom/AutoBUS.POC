@@ -24,6 +24,11 @@ namespace AutoBUSClient
 				OnMessageReadHandler = (EzSocket sock, byte[] buff) =>
 				{
 					Console.WriteLine("Read message!");
+					foreach (var b in buff)
+					{
+						Console.Write(b.ToString());
+					}
+					Console.Write(Environment.NewLine);
 				},
 				OnMessageSendHandler = (EzSocket sock, byte[] data) =>
 				{
@@ -38,7 +43,7 @@ namespace AutoBUSClient
 		public void Send()
 		{
 			// send data to server
-			this.socket.SendMessage("How are you today?");
+			this.socket.SendMessage($"VersionCheck\n{Guid.NewGuid().ToString()}\n2");
 		}
 	}
 
