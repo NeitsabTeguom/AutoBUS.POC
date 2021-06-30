@@ -18,7 +18,7 @@ namespace AutoBUS
         public Worker(ILogger<Worker> logger)
         {
             _logger = logger;
-            this.sm = new SocketMiddleware(11000);
+            this.sm = new SocketMiddleware(SocketMiddleware.SocketType.Server, 11000);
             this.sm.Start();
         }
 
