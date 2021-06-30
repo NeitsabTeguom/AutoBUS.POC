@@ -1,5 +1,6 @@
 # AutoBUS
-An all in one SaaS software
+## All in one SaaS software
+Because a BUS must do more than deliver messages
   - message broker
   - application module
   - deployment management
