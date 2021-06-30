@@ -7,3 +7,4 @@ C:\PERSO\Projet\AutoBUS\sources\develop\EzSockets\obj\Debug\netstandard2.0\EzSoc
 C:\PERSO\Projet\AutoBUS\sources\develop\EzSockets\obj\Debug\netstandard2.0\EzSockets.csproj.CoreCompileInputs.cache
 C:\PERSO\Projet\AutoBUS\sources\develop\EzSockets\obj\Debug\netstandard2.0\EzSockets.dll
 C:\PERSO\Projet\AutoBUS\sources\develop\EzSockets\obj\Debug\netstandard2.0\EzSockets.pdb
+C:\PERSO\Projet\AutoBUS\sources\develop\EzSockets\obj\Debug\netstandard2.0\EzSockets.csprojAssemblyReference.cache

@@ -12,6 +12,19 @@ namespace AutoBUS
 
 		private int port;
 
+		public enum SocketType
+        {
+			Server,
+			Client
+        }
+
+		public SocketType socketType { get; private set; }
+
+		/// <summary>
+		/// Socket client
+		/// </summary>
+		private EzSocket client;
+
 		/// <summary>
 		/// Socket server
 		/// </summary>
@@ -27,9 +40,17 @@ namespace AutoBUS
 		/// </summary>
 		private Dictionary<long, EzSocket> sockets = new Dictionary<long, EzSocket>();
 
+		public class UserData
+        {
+			public UInt16 NegociateVersion { get; set; } = 1;
+        }
+
 		private Broker broker;
 
-		public SocketMiddleware(int port)
+		public SocketMiddleware(
+			SocketType socketType,
+			int port, 
+			string ip = null)
 		{
 			this.port = port;
 
@@ -46,7 +67,20 @@ namespace AutoBUS
 				OnExceptionHandler = OnExceptionHandler
 			};
 
-			this.server = new EzSocketListener(this.listener);
+			this.socketType = socketType;
+			switch (this.socketType)
+			{
+				case SocketType.Server:
+					{
+						this.server = new EzSocketListener(this.listener);
+						break;
+					}
+				case SocketType.Client:
+					{ 
+						this.client = new EzSocket(ip, port, this.listener);
+						break;
+					}
+			}
 		}
 
 		/// <summary>
@@ -54,8 +88,26 @@ namespace AutoBUS
 		/// </summary>
 		public void Start()
 		{
-			Console.WriteLine("Listener running...");
-			this.server.ListenAsync(this.port);
+			switch (this.socketType)
+			{
+				case SocketType.Server:
+					{
+						Console.WriteLine("Listener running...");
+						this.server?.ListenAsync(this.port);
+						break;
+					}
+				case SocketType.Client:
+					{
+						Console.WriteLine("Client running...");
+						this.client?.StartReadingMessages();
+
+						if (this.socketType == SocketType.Client)
+						{
+							this.broker.ms.VersionCheck(-1);
+						}
+						break;
+					}
+			}
 		}
 
         /// <summary>
@@ -68,7 +120,20 @@ namespace AutoBUS
             {
 				this.Close(SocketId);
             }
-			this.server.StopListening();
+
+			switch (this.socketType)
+			{
+				case SocketType.Server:
+					{
+						this.server?.StopListening();
+						break;
+					}
+				case SocketType.Client:
+					{
+						this.client?.StopReadingMessages();
+						break;
+					}
+			}
 		}
 
 		/// <summary>
@@ -79,11 +144,23 @@ namespace AutoBUS
 		/// <returns></returns>
 		public bool Send(long SocketId, byte[] data)
 		{
-			if(this.sockets.ContainsKey(SocketId))
-            {
-				this.sockets[SocketId].SendMessage(data);
-				return true;
-            }
+			switch (this.socketType)
+			{
+				case SocketType.Server:
+					{
+						if (this.sockets.ContainsKey(SocketId))
+						{
+							this.sockets[SocketId].SendMessage(data);
+							return true;
+						}
+						break;
+					}
+				case SocketType.Client:
+					{
+						this.client.SendMessage(data);
+						return true;
+					}
+			}
 			return false;
 		}
 
@@ -94,15 +171,74 @@ namespace AutoBUS
 		/// <returns></returns>
 		public bool Close(long SocketId)
 		{
-			if (this.sockets.ContainsKey(SocketId))
+			switch (this.socketType)
 			{
-				this.sockets[SocketId].StopReadingMessages();
-				this.sockets[SocketId].Close();
-				this.sockets.Remove(SocketId);
-				return true;
+				case SocketType.Server:
+					{
+						if (this.sockets.ContainsKey(SocketId))
+						{
+							this.sockets[SocketId].StopReadingMessages();
+							this.sockets[SocketId].Close();
+							this.sockets.Remove(SocketId);
+							return true;
+						}
+						break;
+					}
+				case SocketType.Client:
+					{
+						this.client.Close();
+						return true;
+					}
 			}
 			return false;
         }
+
+		/// <summary>
+		///  Server only
+		/// </summary>
+		/// <param name="SocketId"></param>
+		/// <returns></returns>
+		public UserData GetSocketData(long SocketId)
+		{
+			switch (this.socketType)
+			{
+				case SocketType.Server:
+					{
+						if (this.sockets.ContainsKey(SocketId))
+						{
+							return (UserData)(this.sockets[SocketId].UserData ?? new UserData());
+						}
+						break;
+					}
+				case SocketType.Client:
+					{
+						return (UserData)(this.client.UserData ?? new UserData());
+					}
+			}
+			return null;
+		}
+
+		/// <summary>
+		/// Server only
+		/// </summary>
+		/// <param name="SocketId"></param>
+		/// <param name="userData"></param>
+		public void SetSocketData(long SocketId, UserData userData)
+		{
+			switch (this.socketType)
+			{
+				case SocketType.Server:
+					{
+						this.sockets[SocketId].UserData = userData;
+						break;
+					}
+				case SocketType.Client:
+					{
+						this.client.UserData = userData;
+						break;
+					}
+			}
+		}
 
 		private void OnNewConnectionHandler(EzSocket socket)
         {
@@ -119,7 +255,7 @@ namespace AutoBUS
 
 		private void OnMessageReadHandler(EzSocket socket, byte[] data)
 		{
-			this.broker.Deliver(socket.SocketId, data);
+			this.broker.TakeIn(socket.SocketId, data);
 			Console.WriteLine("Read message!");
 		}
 

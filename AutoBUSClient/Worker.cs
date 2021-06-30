@@ -1,3 +1,4 @@
+using AutoBUS;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using System;
@@ -19,15 +20,8 @@ namespace AutoBUSClient
         public Worker(ILogger<Worker> logger)
         {
             _logger = logger;
-            this.sm = new SocketMiddleware(null, 11000);
-            this.t = new System.Timers.Timer(1000);
-            this.t.Elapsed += T_Elapsed;
-            this.t.Start();
-        }
-
-        private void T_Elapsed(object sender, System.Timers.ElapsedEventArgs e)
-        {
-            this.sm.Send();
+            this.sm = new SocketMiddleware(SocketMiddleware.SocketType.Client, 11000, null);
+            this.sm.Start();
         }
 
         protected override async Task ExecuteAsync(CancellationToken stoppingToken)

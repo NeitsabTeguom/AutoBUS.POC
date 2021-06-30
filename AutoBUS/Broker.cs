@@ -1,6 +1,7 @@
 ﻿using EzSockets;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 using System.Net;
 using System.Reflection;
@@ -11,21 +12,38 @@ namespace AutoBUS
     // Message broker
     public class Broker
     {
-        private SocketMiddleware sm;
+        public class Options
+        {
+            public int MainServerNumber { get; set; }
+        }
+
+        public Options options;
+
+        private enum StatusCode
+        {
+            Ack = 1, // Message received and saved to ROM
+            Error, // Execution in timeout or all others error, error number in message
+            Success // Message executed with success
+        }
+
+        public SocketMiddleware sm;
 
         // Messages methods
         private Dictionary<string, MethodInfo> msf = new Dictionary<string, MethodInfo>();
         // Messages class instance, where to call functions
-        private Messages.Receive mr;
-        private Messages.Receive m;
+        public Messages.Receive mr;
+        public Messages.Send ms;
 
         // UTF8 par defaut
         private Encoding encoding = Encoding.UTF8;
 
-        private const UInt16 BrokerVersion = 1;
+        public UInt16 BrokerVersion { get; private set; } = 1;
 
         public Broker(SocketMiddleware sm)
         {
+            this.options = new Options();
+            this.options.MainServerNumber = 1;
+
             this.sm = sm;
 
             // For more time response, using "reflexion" instead "switch case"
@@ -41,13 +59,16 @@ namespace AutoBUS
             Console.WriteLine("Broker running...");
 
             this.mr = new Messages.Receive(this);
+
+            this.ms = new Messages.Send(this);
         }
 
         /// <summary>
-        /// Message Deliver
+        /// Incomming message
         /// </summary>
-        /// <param name="hlc">HttpListenerContext Request / Response</param>
-        public void Deliver(long SocketId, byte[] buff)
+        /// <param name="SocketId"></param>
+        /// <param name="buff"></param>
+        public void TakeIn(long SocketId, byte[] buff)
         {
             string MessageName;
             string RequestId;
@@ -63,13 +84,13 @@ namespace AutoBUS
 
             if (MessageName == null)
             {
-                this.ResponseBadRequest(SocketId, "", "missing MessageName.");
+                //this.ResponseError(SocketId, "", "missing MessageName.");
                 return;
             }
 
             if(!msf.ContainsKey(MessageName))
             {
-                this.ResponseBadRequest(SocketId, "", "unknow MessageName.");
+                //this.ResponseError(SocketId, "", "unknow MessageName.");
                 return;
             }
             MethodInfo mf = msf[MessageName];
@@ -78,7 +99,7 @@ namespace AutoBUS
 
             if (RequestId == null || RequestId.Trim() == "")
             {
-                this.ResponseBadRequest(SocketId, "", "missing RequestId.");
+                //this.ResponseError(SocketId, "", "missing RequestId.");
                 return;
             }
 
@@ -92,7 +113,35 @@ namespace AutoBUS
             catch(Exception ex){this.Logger(ex);}
         }
 
+        /// <summary>
+        /// Outgoing message
+        /// </summary>
+        /// <param name="SocketId"></param>
+        /// <param name="buff"></param>
+        public void Deliver(long SocketId, byte[] buff)
+        {
+            StackTrace stackTrace = new StackTrace();
+            string MsgName = stackTrace.GetFrame(1).GetMethod().Name;
+            string RequestId = this.options.MainServerNumber.ToString() + "_" + Guid.NewGuid().ToString();
 
+
+            byte[] data = this.ConvertStringToBytes($"{MsgName}\n{RequestId}\n");
+            int dataLength = data.Length;
+
+
+            Array.Resize(ref data, data.Length + buff.Length);
+            Buffer.BlockCopy(buff, 0, data, dataLength, buff.Length);
+
+            this.sm.Send(SocketId, data);
+        }
+
+        /// <summary>
+        /// Get header in received message
+        /// </summary>
+        /// <param name="buff"></param>
+        /// <param name="MessageName"></param>
+        /// <param name="RequestId"></param>
+        /// <returns></returns>
         private int GetHeader(
             byte[] buff, 
             out string MessageName, 
@@ -101,14 +150,20 @@ namespace AutoBUS
         {
             int cursor = 0;
             // 1 Message Name \n
-            this.GetHeaderParam(buff, ref cursor, out MessageName);
+            this.GetParam(buff, ref cursor, out MessageName);
             // 2 Request id \n
-            this.GetHeaderParam(buff, ref cursor, out RequestId);
+            this.GetParam(buff, ref cursor, out RequestId);
 
             return cursor;
         }
 
-        public void GetHeaderParam(byte[] buff, ref int cursor, out string value)
+        /// <summary>
+        /// Get param in message (header)
+        /// </summary>
+        /// <param name="buff"></param>
+        /// <param name="cursor"></param>
+        /// <param name="value"></param>
+        public void GetParam(byte[] buff, ref int cursor, out string value)
         {
             value = "";
             for (int i = cursor; i <= buff.Length; i++)
@@ -119,21 +174,6 @@ namespace AutoBUS
                     break;
                 value += c;
             }
-        }
-
-        /// <summary>
-        /// Response : Bad request
-        /// </summary>
-        /// <param name="hlc">HttpListenerContext Request / Response</param>
-        /// <param name="description">Status description</param>
-        public void ResponseBadRequest(long SocketId, string RequestId, string description)
-        {
-            this.sm.Send(SocketId, this.ReponseMessage(RequestId, 400, ("Bad request " + description).Trim()));
-        }
-
-        private byte[] ReponseMessage(string RequestId, UInt16 statusCode, string statusDescription = "")
-        {
-            return this.ConvertStringToBytes($"Response\n{RequestId}\n{statusCode}\n{statusDescription}".Trim() + "\n");
         }
 
         public byte[] ConvertStringToBytes(string msg)
@@ -155,10 +195,10 @@ namespace AutoBUS
 
     namespace Messages
     {
-        public class Receive1
+        public class Receive
         {
             private readonly Broker broker;
-            public Receive1(Broker broker)
+            public Receive(Broker broker)
             {
                 this.broker = broker;
                 Console.WriteLine("Messages waiting to be called...");
@@ -171,22 +211,23 @@ namespace AutoBUS
             /// <param name="data"></param>
             public void VersionCheck(long SocketId, string RequestId, byte[] data)
             {
+                UInt16 clientVersion = BitConverter.ToUInt16(data);
 
-                string VER = broker.ConvertBytesToString(data);
-
-                if (VER == null)
+                if(clientVersion > this.broker.BrokerVersion)
                 {
-                    this.broker.ResponseBadRequest(SocketId, RequestId, "missing version in body.");
-                    return;
+                    this.broker.ms.VersionCheck(SocketId);
                 }
 
-
+                SocketMiddleware.UserData userData = this.broker.sm.GetSocketData(SocketId);
+                userData.NegociateVersion = this.broker.BrokerVersion;
+                this.broker.sm.SetSocketData(SocketId, userData);
             }
         }
-        public class Send1
+
+        public class Send
         {
             private readonly Broker broker;
-            public Send1(Broker broker)
+            public Send(Broker broker)
             {
                 this.broker = broker;
                 Console.WriteLine("Messages ready to be sent...");
@@ -197,19 +238,17 @@ namespace AutoBUS
             /// </summary>
             /// <param name="SocketId"></param>
             /// <param name="data"></param>
-            public void VersionCheck(long SocketId, string RequestId, byte[] data)
+            public void VersionCheck(long SocketId)
             {
+                SocketMiddleware.UserData userData = this.broker.sm.GetSocketData(SocketId);
+                userData.NegociateVersion = this.broker.BrokerVersion;
+                this.broker.sm.SetSocketData(SocketId, userData);
 
-                string VER = broker.ConvertBytesToString(data);
-
-                if (VER == null)
-                {
-                    this.broker.ResponseBadRequest(SocketId, RequestId, "missing version in body.");
-                    return;
-                }
-
-
+                byte[] buff = BitConverter.GetBytes((UInt16)this.broker.BrokerVersion);
+                this.broker.Deliver(SocketId, buff);
             }
         }
     }
+
+
 }
