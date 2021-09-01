@@ -1,8 +1,8 @@
 {
   "version": 2,
-  "dgSpecHash": "8rLxFAmRpmPhYQlvy2UV+P6SVbtjR4bc+2/KQKico9u73ohxiudWqgBAEKgMZGJoTu1L49dW3Fde0L1nPgYL+g==",
+  "dgSpecHash": "7WTXqWUN7J3XcHrvIMaaF1pUL8ena+7lV8Jpr4B06Ff7DhWbRVqOsveUt666n6Prwj9Numg29NLKJ322ABwpLw==",
   "success": true,
-  "projectFilePath": "C:\\PERSO\\Projet\\AutoBUS\\sources\\develop\\AutoBUSClient\\AutoBUSClient.csproj",
+  "projectFilePath": "C:\\PERSO\\X1009130\\OS\\AutoBUS\\AutoBUSClient\\AutoBUSClient.csproj",
   "expectedPackageFiles": [
     "C:\\Users\\X1009130\\.nuget\\packages\\microsoft.extensions.configuration\\3.1.14\\microsoft.extensions.configuration.3.1.14.nupkg.sha512",
     "C:\\Users\\X1009130\\.nuget\\packages\\microsoft.extensions.configuration.abstractions\\3.1.14\\microsoft.extensions.configuration.abstractions.3.1.14.nupkg.sha512",

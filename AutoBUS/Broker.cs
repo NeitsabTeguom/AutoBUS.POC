@@ -39,6 +39,122 @@ namespace AutoBUS
 
         public UInt16 BrokerVersion { get; private set; } = 1;
 
+        public class Header
+        {
+            public string MessageName { get; private set; }
+            public string RequestId { get; private set; }
+
+            public Dictionary<string, string> Parameters { get; private set; }
+
+            public int cursor { get; private set; }
+
+            public Header(byte[] buff)
+            {
+                this.cursor = this.GetHeader(buff);
+            }
+
+            /// <summary>
+            /// Reading header parameter
+            /// </summary>
+            /// <param name="header"></param>
+            /// <param name="paramName"></param>
+            /// <returns></returns>
+            public string ReadHeaderParam(string paramName)
+            {
+                if (this.Parameters != null && this.Parameters.ContainsKey(paramName))
+                {
+                    return this.Parameters[paramName];
+                }
+                return null;
+            }
+
+            /// <summary>
+            /// Get header in received message
+            /// </summary>
+            /// <param name="buff"></param>
+            /// <returns></returns>
+            private int GetHeader(byte[] buff)
+            {
+                this.Parameters = new Dictionary<string, string>();
+
+                Type t = this.GetType();
+
+                int cursor = 0;
+
+                while (cursor < buff.Length)
+                {
+                    string name = "";
+                    string value = "";
+
+                    this.GetHeaderParam(buff, ref cursor, out name, out value);
+
+                    // If the property exist in this class, then set it; otherwise put it into parameters dictionary
+                    PropertyInfo pi = t.GetProperty(name);
+                    if(pi != null)
+                    {
+                        pi.SetValue(this, Convert.ChangeType(value, pi.PropertyType));
+                    }
+                    else
+                    {
+                        this.Parameters.Add(name, value);
+                    }
+
+                    // End of buffer
+                    if (cursor < buff.Length)
+                    {
+                        char c = Convert.ToChar(buff[cursor]);
+                        if (c == '\n')
+                        {
+                            cursor++;
+                            break;
+                        }
+                    }
+                }
+
+                return cursor;
+            }
+
+            /// <summary>
+            /// Get param in message (header)
+            /// </summary>
+            /// <param name="buff"></param>
+            /// <param name="cursor"></param>
+            /// <param name="name"></param>
+            /// <param name="value"></param>
+            private void GetHeaderParam(byte[] buff, ref int cursor, out string name, out string value)
+            {
+                name = "";
+                value = "";
+                bool readingName = true;
+                for (int i = cursor; i <= buff.Length; i++)
+                {
+                    char c = Convert.ToChar(buff[i]);
+                    cursor = i + 1;
+                    if (c == '\n')
+                        break;
+
+                    // Reading name to ':'
+                    if (c == ':')
+                    {
+                        readingName = false;
+                        continue;
+                    }
+
+                    if (readingName)
+                    {
+                        name += c;
+                    }
+                    else
+                    {
+                        value += c;
+                    }
+                }
+
+                name = name.Trim();
+                value = value.Trim();
+            }
+        }
+
         public Broker(SocketMiddleware sm)
         {
             this.options = new Options();
@@ -73,31 +189,26 @@ namespace AutoBUS
             string MessageName;
             string RequestId;
 
-            int bodyBegin = this.GetHeader(
-                buff,
-                out MessageName,
-                out RequestId
-                );
+            Header header = new Header(buff);
+            int bodyBegin = header.cursor;
 
 
             // Check MessageName
-
-            if (MessageName == null)
+            if (header.MessageName == null)
             {
                 //this.ResponseError(SocketId, "", "missing MessageName.");
                 return;
             }
 
-            if(!msf.ContainsKey(MessageName))
+            if(!msf.ContainsKey(header.MessageName))
             {
                 //this.ResponseError(SocketId, "", "unknow MessageName.");
                 return;
             }
-            MethodInfo mf = msf[MessageName];
+            MethodInfo mf = msf[header.MessageName];
 
             // Check RequestId not null or empty
-
-            if (RequestId == null || RequestId.Trim() == "")
+            if (header.RequestId == null || header.RequestId.Trim() == "")
             {
                 //this.ResponseError(SocketId, "", "missing RequestId.");
                 return;
@@ -108,7 +219,7 @@ namespace AutoBUS
                 byte[] data = new byte[buff.Length - bodyBegin];
                 Buffer.BlockCopy(buff, bodyBegin, data, 0, data.Length);
 
-                mf.Invoke(this.mr, new object[] { SocketId, RequestId, data });
+                mf.Invoke(this.mr, new object[] { SocketId, header, data });
             }
             catch(Exception ex){this.Logger(ex);}
         }
@@ -125,7 +236,7 @@ namespace AutoBUS
             string RequestId = this.options.MainServerNumber.ToString() + "_" + Guid.NewGuid().ToString();
 
 
-            byte[] data = this.ConvertStringToBytes($"{MsgName}\n{RequestId}\n");
+            byte[] data = this.ConvertStringToBytes($"MessageName:{MsgName}\nRequestId:{RequestId}\n\n");
             int dataLength = data.Length;
 
 
@@ -133,47 +244,6 @@ namespace AutoBUS
             Buffer.BlockCopy(buff, 0, data, dataLength, buff.Length);
 
             this.sm.Send(SocketId, data);
-        }
-
-        /// <summary>
-        /// Get header in received message
-        /// </summary>
-        /// <param name="buff"></param>
-        /// <param name="MessageName"></param>
-        /// <param name="RequestId"></param>
-        /// <returns></returns>
-        private int GetHeader(
-            byte[] buff, 
-            out string MessageName, 
-            out string RequestId
-            )
-        {
-            int cursor = 0;
-            // 1 Message Name \n
-            this.GetParam(buff, ref cursor, out MessageName);
-            // 2 Request id \n
-            this.GetParam(buff, ref cursor, out RequestId);
-
-            return cursor;
-        }
-
-        /// <summary>
-        /// Get param in message (header)
-        /// </summary>
-        /// <param name="buff"></param>
-        /// <param name="cursor"></param>
-        /// <param name="value"></param>
-        public void GetParam(byte[] buff, ref int cursor, out string value)
-        {
-            value = "";
-            for (int i = cursor; i <= buff.Length; i++)
-            {
-                char c = Convert.ToChar(buff[i]);
-                cursor = i + 1;
-                if (c == '\n')
-                    break;
-                value += c;
-            }
         }
 
         public byte[] ConvertStringToBytes(string msg)
@@ -209,7 +279,7 @@ namespace AutoBUS
             /// </summary>
             /// <param name="SocketId"></param>
             /// <param name="data"></param>
-            public void VersionCheck(long SocketId, string RequestId, byte[] data)
+            public void VersionCheck(long SocketId, Broker.Header header, byte[] data)
             {
                 UInt16 clientVersion = BitConverter.ToUInt16(data);
 

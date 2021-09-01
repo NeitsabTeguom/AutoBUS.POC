@@ -8,3 +8,13 @@ C:\PERSO\Projet\AutoBUS\sources\develop\EzSockets\obj\Debug\netstandard2.0\EzSoc
 C:\PERSO\Projet\AutoBUS\sources\develop\EzSockets\obj\Debug\netstandard2.0\EzSockets.dll
 C:\PERSO\Projet\AutoBUS\sources\develop\EzSockets\obj\Debug\netstandard2.0\EzSockets.pdb
 C:\PERSO\Projet\AutoBUS\sources\develop\EzSockets\obj\Debug\netstandard2.0\EzSockets.csprojAssemblyReference.cache
+C:\PERSO\X1009130\OS\AutoBUS\EzSockets\bin\Debug\netstandard2.0\EzSockets.xml
+C:\PERSO\X1009130\OS\AutoBUS\EzSockets\bin\Debug\netstandard2.0\EzSockets.deps.json
+C:\PERSO\X1009130\OS\AutoBUS\EzSockets\bin\Debug\netstandard2.0\EzSockets.dll
+C:\PERSO\X1009130\OS\AutoBUS\EzSockets\bin\Debug\netstandard2.0\EzSockets.pdb
+C:\PERSO\X1009130\OS\AutoBUS\EzSockets\obj\Debug\netstandard2.0\EzSockets.csprojAssemblyReference.cache
+C:\PERSO\X1009130\OS\AutoBUS\EzSockets\obj\Debug\netstandard2.0\EzSockets.AssemblyInfoInputs.cache
+C:\PERSO\X1009130\OS\AutoBUS\EzSockets\obj\Debug\netstandard2.0\EzSockets.AssemblyInfo.cs
+C:\PERSO\X1009130\OS\AutoBUS\EzSockets\obj\Debug\netstandard2.0\EzSockets.csproj.CoreCompileInputs.cache
+C:\PERSO\X1009130\OS\AutoBUS\EzSockets\obj\Debug\netstandard2.0\EzSockets.dll
+C:\PERSO\X1009130\OS\AutoBUS\EzSockets\obj\Debug\netstandard2.0\EzSockets.pdb

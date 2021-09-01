@@ -1,17 +1,17 @@
 {
   "format": 1,
   "restore": {
-    "C:\\PERSO\\Projet\\AutoBUS\\sources\\develop\\AutoBUS\\AutoBUS.csproj": {}
+    "C:\\PERSO\\X1009130\\OS\\AutoBUS\\AutoBUS\\AutoBUS.csproj": {}
   },
   "projects": {
-    "C:\\PERSO\\Projet\\AutoBUS\\sources\\develop\\AutoBUS\\AutoBUS.csproj": {
+    "C:\\PERSO\\X1009130\\OS\\AutoBUS\\AutoBUS\\AutoBUS.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "C:\\PERSO\\Projet\\AutoBUS\\sources\\develop\\AutoBUS\\AutoBUS.csproj",
+        "projectUniqueName": "C:\\PERSO\\X1009130\\OS\\AutoBUS\\AutoBUS\\AutoBUS.csproj",
         "projectName": "AutoBUS",
-        "projectPath": "C:\\PERSO\\Projet\\AutoBUS\\sources\\develop\\AutoBUS\\AutoBUS.csproj",
+        "projectPath": "C:\\PERSO\\X1009130\\OS\\AutoBUS\\AutoBUS\\AutoBUS.csproj",
         "packagesPath": "C:\\Users\\X1009130\\.nuget\\packages\\",
-        "outputPath": "C:\\PERSO\\Projet\\AutoBUS\\sources\\develop\\AutoBUS\\obj\\",
+        "outputPath": "C:\\PERSO\\X1009130\\OS\\AutoBUS\\AutoBUS\\obj\\",
         "projectStyle": "PackageReference",
         "fallbackFolders": [
           "C:\\Program Files\\dotnet\\sdk\\NuGetFallbackFolder"
@@ -31,8 +31,8 @@
           "netcoreapp3.1": {
             "targetAlias": "netcoreapp3.1",
             "projectReferences": {
-              "C:\\PERSO\\Projet\\AutoBUS\\sources\\develop\\EzSockets\\EzSockets.csproj": {
-                "projectPath": "C:\\PERSO\\Projet\\AutoBUS\\sources\\develop\\EzSockets\\EzSockets.csproj"
+              "C:\\PERSO\\X1009130\\OS\\AutoBUS\\EzSockets\\EzSockets.csproj": {
+                "projectPath": "C:\\PERSO\\X1009130\\OS\\AutoBUS\\EzSockets\\EzSockets.csproj"
               }
             }
           }
@@ -71,14 +71,14 @@
         }
       }
     },
-    "C:\\PERSO\\Projet\\AutoBUS\\sources\\develop\\EzSockets\\EzSockets.csproj": {
+    "C:\\PERSO\\X1009130\\OS\\AutoBUS\\EzSockets\\EzSockets.csproj": {
       "version": "1.0.1",
       "restore": {
-        "projectUniqueName": "C:\\PERSO\\Projet\\AutoBUS\\sources\\develop\\EzSockets\\EzSockets.csproj",
+        "projectUniqueName": "C:\\PERSO\\X1009130\\OS\\AutoBUS\\EzSockets\\EzSockets.csproj",
         "projectName": "EzSockets",
-        "projectPath": "C:\\PERSO\\Projet\\AutoBUS\\sources\\develop\\EzSockets\\EzSockets.csproj",
+        "projectPath": "C:\\PERSO\\X1009130\\OS\\AutoBUS\\EzSockets\\EzSockets.csproj",
         "packagesPath": "C:\\Users\\X1009130\\.nuget\\packages\\",
-        "outputPath": "C:\\PERSO\\Projet\\AutoBUS\\sources\\develop\\EzSockets\\obj\\",
+        "outputPath": "C:\\PERSO\\X1009130\\OS\\AutoBUS\\EzSockets\\obj\\",
         "projectStyle": "PackageReference",
         "fallbackFolders": [
           "C:\\Program Files\\dotnet\\sdk\\NuGetFallbackFolder"
