@@ -1,38 +1,33 @@
 {
   "format": 1,
   "restore": {
-    "C:\\PERSO\\X1009130\\OS\\AutoBUS\\AutoBUSClient\\AutoBUSClient.csproj": {}
+    "/home/neitsab/sources/AutoBUS/AutoBUSClient/AutoBUSClient.csproj": {}
   },
   "projects": {
-    "C:\\PERSO\\X1009130\\OS\\AutoBUS\\AutoBUSClient\\AutoBUSClient.csproj": {
+    "/home/neitsab/sources/AutoBUS/AutoBUSClient/AutoBUSClient.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "C:\\PERSO\\X1009130\\OS\\AutoBUS\\AutoBUSClient\\AutoBUSClient.csproj",
+        "projectUniqueName": "/home/neitsab/sources/AutoBUS/AutoBUSClient/AutoBUSClient.csproj",
         "projectName": "AutoBUSClient",
-        "projectPath": "C:\\PERSO\\X1009130\\OS\\AutoBUS\\AutoBUSClient\\AutoBUSClient.csproj",
-        "packagesPath": "C:\\Users\\X1009130\\.nuget\\packages\\",
-        "outputPath": "C:\\PERSO\\X1009130\\OS\\AutoBUS\\AutoBUSClient\\obj\\",
+        "projectPath": "/home/neitsab/sources/AutoBUS/AutoBUSClient/AutoBUSClient.csproj",
+        "packagesPath": "/home/neitsab/.nuget/packages/",
+        "outputPath": "/home/neitsab/sources/AutoBUS/AutoBUSClient/obj/",
         "projectStyle": "PackageReference",
-        "fallbackFolders": [
-          "C:\\Program Files\\dotnet\\sdk\\NuGetFallbackFolder"
-        ],
         "configFilePaths": [
-          "C:\\Users\\X1009130\\AppData\\Roaming\\NuGet\\NuGet.Config",
-          "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.Offline.config"
+          "/home/neitsab/.nuget/NuGet/NuGet.Config"
         ],
         "originalTargetFrameworks": [
-          "netcoreapp3.1"
+          "net5.0"
         ],
         "sources": {
-          "C:\\Program Files (x86)\\Microsoft SDKs\\NuGetPackages\\": {},
           "https://api.nuget.org/v3/index.json": {}
         },
         "frameworks": {
-          "netcoreapp3.1": {
-            "targetAlias": "netcoreapp3.1",
+          "net5.0": {
+            "targetAlias": "net5.0",
             "projectReferences": {
-              "C:\\PERSO\\X1009130\\OS\\AutoBUS\\EzSockets\\EzSockets.csproj": {
-                "projectPath": "C:\\PERSO\\X1009130\\OS\\AutoBUS\\EzSockets\\EzSockets.csproj"
+              "/home/neitsab/sources/AutoBUS/EzSockets/EzSockets.csproj": {
+                "projectPath": "/home/neitsab/sources/AutoBUS/EzSockets/EzSockets.csproj"
               }
             }
           }
@@ -44,8 +39,8 @@
         }
       },
       "frameworks": {
-        "netcoreapp3.1": {
-          "targetAlias": "netcoreapp3.1",
+        "net5.0": {
+          "targetAlias": "net5.0",
           "dependencies": {
             "Microsoft.Extensions.Hosting": {
               "target": "Package",
@@ -67,31 +62,26 @@
               "privateAssets": "all"
             }
           },
-          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\5.0.202\\RuntimeIdentifierGraph.json"
+          "runtimeIdentifierGraphPath": "/usr/share/dotnet/sdk/5.0.400/RuntimeIdentifierGraph.json"
         }
       }
     },
-    "C:\\PERSO\\X1009130\\OS\\AutoBUS\\EzSockets\\EzSockets.csproj": {
+    "/home/neitsab/sources/AutoBUS/EzSockets/EzSockets.csproj": {
       "version": "1.0.1",
       "restore": {
-        "projectUniqueName": "C:\\PERSO\\X1009130\\OS\\AutoBUS\\EzSockets\\EzSockets.csproj",
+        "projectUniqueName": "/home/neitsab/sources/AutoBUS/EzSockets/EzSockets.csproj",
         "projectName": "EzSockets",
-        "projectPath": "C:\\PERSO\\X1009130\\OS\\AutoBUS\\EzSockets\\EzSockets.csproj",
-        "packagesPath": "C:\\Users\\X1009130\\.nuget\\packages\\",
-        "outputPath": "C:\\PERSO\\X1009130\\OS\\AutoBUS\\EzSockets\\obj\\",
+        "projectPath": "/home/neitsab/sources/AutoBUS/EzSockets/EzSockets.csproj",
+        "packagesPath": "/home/neitsab/.nuget/packages/",
+        "outputPath": "/home/neitsab/sources/AutoBUS/EzSockets/obj/",
         "projectStyle": "PackageReference",
-        "fallbackFolders": [
-          "C:\\Program Files\\dotnet\\sdk\\NuGetFallbackFolder"
-        ],
         "configFilePaths": [
-          "C:\\Users\\X1009130\\AppData\\Roaming\\NuGet\\NuGet.Config",
-          "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.Offline.config"
+          "/home/neitsab/.nuget/NuGet/NuGet.Config"
         ],
         "originalTargetFrameworks": [
           "netstandard2.0"
         ],
         "sources": {
-          "C:\\Program Files (x86)\\Microsoft SDKs\\NuGetPackages\\": {},
           "https://api.nuget.org/v3/index.json": {}
         },
         "frameworks": {
@@ -125,7 +115,7 @@
           ],
           "assetTargetFallback": true,
           "warn": true,
-          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\5.0.202\\RuntimeIdentifierGraph.json"
+          "runtimeIdentifierGraphPath": "/usr/share/dotnet/sdk/5.0.400/RuntimeIdentifierGraph.json"
         }
       }
     }

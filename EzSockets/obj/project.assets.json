@@ -179,30 +179,24 @@
     ]
   },
   "packageFolders": {
-    "C:\\Users\\X1009130\\.nuget\\packages\\": {},
-    "C:\\Program Files\\dotnet\\sdk\\NuGetFallbackFolder": {}
+    "/home/neitsab/.nuget/packages/": {}
   },
   "project": {
     "version": "1.0.1",
     "restore": {
-      "projectUniqueName": "C:\\PERSO\\X1009130\\OS\\AutoBUS\\EzSockets\\EzSockets.csproj",
+      "projectUniqueName": "/home/neitsab/sources/AutoBUS/EzSockets/EzSockets.csproj",
       "projectName": "EzSockets",
-      "projectPath": "C:\\PERSO\\X1009130\\OS\\AutoBUS\\EzSockets\\EzSockets.csproj",
-      "packagesPath": "C:\\Users\\X1009130\\.nuget\\packages\\",
-      "outputPath": "C:\\PERSO\\X1009130\\OS\\AutoBUS\\EzSockets\\obj\\",
+      "projectPath": "/home/neitsab/sources/AutoBUS/EzSockets/EzSockets.csproj",
+      "packagesPath": "/home/neitsab/.nuget/packages/",
+      "outputPath": "/home/neitsab/sources/AutoBUS/EzSockets/obj/",
       "projectStyle": "PackageReference",
-      "fallbackFolders": [
-        "C:\\Program Files\\dotnet\\sdk\\NuGetFallbackFolder"
-      ],
       "configFilePaths": [
-        "C:\\Users\\X1009130\\AppData\\Roaming\\NuGet\\NuGet.Config",
-        "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.Offline.config"
+        "/home/neitsab/.nuget/NuGet/NuGet.Config"
       ],
       "originalTargetFrameworks": [
         "netstandard2.0"
       ],
       "sources": {
-        "C:\\Program Files (x86)\\Microsoft SDKs\\NuGetPackages\\": {},
         "https://api.nuget.org/v3/index.json": {}
       },
       "frameworks": {
@@ -236,7 +230,7 @@
         ],
         "assetTargetFallback": true,
         "warn": true,
-        "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\5.0.202\\RuntimeIdentifierGraph.json"
+        "runtimeIdentifierGraphPath": "/usr/share/dotnet/sdk/5.0.400/RuntimeIdentifierGraph.json"
       }
     }
   }
