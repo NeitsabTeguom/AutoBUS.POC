@@ -413,7 +413,7 @@
       },
       "EzSockets/1.0.1": {
         "type": "project",
-        "framework": ".NETStandard,Version=v2.0",
+        "framework": ".NETCoreApp,Version=v5.0",
         "compile": {
           "bin/placeholder/EzSockets.dll": {}
         },
@@ -1032,32 +1032,38 @@
     ]
   },
   "packageFolders": {
-    "/home/neitsab/.nuget/packages/": {}
+    "C:\\Users\\X1009130\\.nuget\\packages\\": {},
+    "C:\\Program Files\\dotnet\\sdk\\NuGetFallbackFolder": {}
   },
   "project": {
     "version": "1.0.0",
     "restore": {
-      "projectUniqueName": "/home/neitsab/sources/AutoBUS/AutoBUSClient/AutoBUSClient.csproj",
+      "projectUniqueName": "C:\\PERSO\\X1009130\\OS\\AutoBUS\\AutoBUSClient\\AutoBUSClient.csproj",
       "projectName": "AutoBUSClient",
-      "projectPath": "/home/neitsab/sources/AutoBUS/AutoBUSClient/AutoBUSClient.csproj",
-      "packagesPath": "/home/neitsab/.nuget/packages/",
-      "outputPath": "/home/neitsab/sources/AutoBUS/AutoBUSClient/obj/",
+      "projectPath": "C:\\PERSO\\X1009130\\OS\\AutoBUS\\AutoBUSClient\\AutoBUSClient.csproj",
+      "packagesPath": "C:\\Users\\X1009130\\.nuget\\packages\\",
+      "outputPath": "C:\\PERSO\\X1009130\\OS\\AutoBUS\\AutoBUSClient\\obj\\",
       "projectStyle": "PackageReference",
+      "fallbackFolders": [
+        "C:\\Program Files\\dotnet\\sdk\\NuGetFallbackFolder"
+      ],
       "configFilePaths": [
-        "/home/neitsab/.nuget/NuGet/NuGet.Config"
+        "C:\\Users\\X1009130\\AppData\\Roaming\\NuGet\\NuGet.Config",
+        "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.Offline.config"
       ],
       "originalTargetFrameworks": [
         "net5.0"
       ],
       "sources": {
+        "C:\\Program Files (x86)\\Microsoft SDKs\\NuGetPackages\\": {},
         "https://api.nuget.org/v3/index.json": {}
       },
       "frameworks": {
         "net5.0": {
           "targetAlias": "net5.0",
           "projectReferences": {
-            "/home/neitsab/sources/AutoBUS/EzSockets/EzSockets.csproj": {
-              "projectPath": "/home/neitsab/sources/AutoBUS/EzSockets/EzSockets.csproj"
+            "C:\\PERSO\\X1009130\\OS\\AutoBUS\\EzSockets\\EzSockets.csproj": {
+              "projectPath": "C:\\PERSO\\X1009130\\OS\\AutoBUS\\EzSockets\\EzSockets.csproj"
             }
           }
         }
@@ -1092,7 +1098,7 @@
             "privateAssets": "all"
           }
         },
-        "runtimeIdentifierGraphPath": "/usr/share/dotnet/sdk/5.0.400/RuntimeIdentifierGraph.json"
+        "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\5.0.202\\RuntimeIdentifierGraph.json"
       }
     }
   }

@@ -1,11 +1,8 @@
 {
   "version": 2,
-  "dgSpecHash": "AlXq1GyK+lCn54ZMgLYza5gI8rXQfHOI0T0iqcxp2doyTkiCivk9m0sTqyxIWLIeuJyslVNJyHZ5tXyZyFLx7w==",
+  "dgSpecHash": "R6JbGAnRe2PRQJpJOgqzqcAcMkCUPAcwIC/gtij69lb+FqVq5DsbrRPhDQ2q5GGlOa3MRAcPZLY8lR41mZhZXw==",
   "success": true,
-  "projectFilePath": "/home/neitsab/sources/AutoBUS/EzSockets/EzSockets.csproj",
-  "expectedPackageFiles": [
-    "/home/neitsab/.nuget/packages/microsoft.netcore.platforms/1.1.0/microsoft.netcore.platforms.1.1.0.nupkg.sha512",
-    "/home/neitsab/.nuget/packages/netstandard.library/2.0.3/netstandard.library.2.0.3.nupkg.sha512"
-  ],
+  "projectFilePath": "C:\\PERSO\\X1009130\\OS\\AutoBUS\\EzSockets\\EzSockets.csproj",
+  "expectedPackageFiles": [],
   "logs": []
 }
