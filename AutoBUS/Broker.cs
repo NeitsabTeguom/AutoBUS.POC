@@ -34,52 +34,98 @@ namespace AutoBUS
         public Messages.Receive mr;
         public Messages.Send ms;
 
-        // UTF8 par defaut
-        private Encoding encoding = Encoding.UTF8;
-
         public UInt16 BrokerVersion { get; private set; } = 1;
 
-        public class Header
+        public class Frame
         {
-            public string MessageName { get; private set; }
-            public string RequestId { get; private set; }
-
-            public Dictionary<string, string> Parameters { get; private set; }
-
-            public int cursor { get; private set; }
-
-            public Header(byte[] buff)
+            private static class Utils
             {
-                this.cursor = this.GetHeader(buff);
-            }
+                // UTF8 par defaut
+                private static Encoding encoding = Encoding.UTF8;
 
-            /// <summary>
-            /// Reading header parameter
-            /// </summary>
-            /// <param name="header"></param>
-            /// <param name="paramName"></param>
-            /// <returns></returns>
-            public string ReadHeaderParam(string paramName)
-            {
-                if (this.Parameters != null && this.Parameters.ContainsKey(paramName))
+                public static byte[] ConvertStringToBytes(string msg)
                 {
-                    return this.Parameters[paramName];
+                    return encoding.GetBytes(msg);
                 }
-                return null;
+
+                public static string ConvertBytesToString(byte[] msg)
+                {
+                    return encoding.GetString(msg);
+                }
             }
+
+            public class Header
+            {
+                // Required properties
+                public string MessageName { get; set; }
+                public string RequestId { get; set; }
+
+                // Not required properties
+
+                // Managing frames fragmentation
+
+                // Frame index part for this request Id
+                public uint? PartIndex { get; private set; }
+                // Frames needed for this request Id
+                public uint? PartLength { get; private set; }
+
+                // Parameters
+
+                public Dictionary<string, string> Parameters { get; set; }
+            }
+
+            public Header header = new Header();
+
+            public byte[] DataBytes { get; set; }
+            private string _DataString;
+            public string DataString
+            {
+                get
+                {
+                    if (this._DataString == null)
+                    {
+                        this._DataString = Utils.ConvertBytesToString(this.DataBytes);
+                    }
+                    return this._DataString;
+                }
+                set
+                {
+                    if (this.DataBytes == null)
+                    {
+                        this.DataBytes = Utils.ConvertStringToBytes(value);
+                    }
+                }
+            }
+
+            // Buff -> Frame
+            public Frame(byte[] buff)
+            {
+                int cursor = 0;
+                this.GetHeader(buff, ref cursor);
+                this.GetData(buff, ref cursor);
+            }
+
+            // Frame -> Buff
+            public Frame(string MessageName, string RequestId)
+            {
+                this.header.MessageName = MessageName;
+                this.header.RequestId = RequestId;
+            }
+
+            #region Buff2Frame
 
             /// <summary>
             /// Get header in received message
             /// </summary>
             /// <param name="buff"></param>
             /// <returns></returns>
-            private int GetHeader(byte[] buff)
+            private void GetHeader(byte[] buff, ref int cursor)
             {
-                this.Parameters = new Dictionary<string, string>();
+                this.header.Parameters = new Dictionary<string, string>();
 
-                Type t = this.GetType();
+                Type t = this.header.GetType();
 
-                int cursor = 0;
+                cursor = 0;
 
                 while (cursor < buff.Length)
                 {
@@ -89,14 +135,21 @@ namespace AutoBUS
                     this.GetHeaderParam(buff, ref cursor, out name, out value);
 
                     // If the property exist in this class, then set it; otherwise put it into parameters dictionary
-                    PropertyInfo pi = t.GetProperty(name);
-                    if(pi != null)
+                    if (name != "Data" && name != "Parameters")
                     {
-                        pi.SetValue(this, Convert.ChangeType(value, pi.PropertyType));
+                        PropertyInfo pi = t.GetProperty(name);
+                        if (pi != null)
+                        {
+                            pi.SetValue(this.header, Convert.ChangeType(value, pi.PropertyType));
+                        }
+                        else
+                        {
+                            this.header.Parameters.Add(name, value);
+                        }
                     }
                     else
                     {
-                        this.Parameters.Add(name, value);
+                        this.header.Parameters.Add(name, value);
                     }
 
                     // End of buffer
@@ -110,8 +163,6 @@ namespace AutoBUS
                         }
                     }
                 }
-
-                return cursor;
             }
 
             /// <summary>
@@ -153,6 +204,75 @@ namespace AutoBUS
                 name = name.Trim();
                 value = value.Trim();
             }
+
+            private void GetData(byte[] buff, ref int cursor)
+            {
+                this.DataBytes = new byte[buff.Length - cursor];
+                Buffer.BlockCopy(buff, cursor, this.DataBytes, 0, this.DataBytes.Length);
+            }
+
+            #endregion Buff2Frame
+
+            #region Frame2Buff
+            public byte[] GetBuffer()
+            {
+                if (this.header != null)
+                {
+                    string header = "";
+
+                    Type t = this.header.GetType();
+
+                    foreach (PropertyInfo pi in t.GetProperties())
+                    {
+                        if (t.Name != "Parameters")
+                        {
+                            object value = pi.GetValue(this.header);
+                            if (value != null)
+                            {
+                                header += pi.Name + ":" + value.ToString() + "\n";
+                            }
+                        }
+                    }
+
+                    foreach(KeyValuePair<string, string> parameter in this.header.Parameters)
+                    {
+                        // Parameter can't be a property of header
+                        if(t.GetProperty(parameter.Key)==null)
+                        {
+                            header += parameter.Key + ":" + parameter.Value + "\n";
+                        }
+                    }
+
+                    header += "\n";
+
+                    byte[] frame = Utils.ConvertStringToBytes(header);
+                    int frameLength = frame.Length;
+
+                    // Adding data
+
+                    Array.Resize(ref frame, frame.Length + this.DataBytes.Length);
+                    Buffer.BlockCopy(this.DataBytes, 0, frame, frameLength, this.DataBytes.Length);
+
+                    return frame;
+                }
+                return null;
+            }
+            #endregion Frame2Buff
+
+            /// <summary>
+            /// Reading header parameter
+            /// </summary>
+            /// <param name="header"></param>
+            /// <param name="paramName"></param>
+            /// <returns></returns>
+            public string ReadHeaderParam(string paramName)
+            {
+                if (this.header != null && this.header.Parameters != null && this.header.Parameters.ContainsKey(paramName))
+                {
+                    return this.header.Parameters[paramName];
+                }
+                return null;
+            }
         }
 
         public Broker(SocketMiddleware sm)
@@ -186,29 +306,25 @@ namespace AutoBUS
         /// <param name="buff"></param>
         public void TakeIn(long SocketId, byte[] buff)
         {
-            string MessageName;
-            string RequestId;
-
-            Header header = new Header(buff);
-            int bodyBegin = header.cursor;
+            Frame frame = new Frame(buff);
 
 
             // Check MessageName
-            if (header.MessageName == null)
+            if (frame.header.MessageName == null)
             {
                 //this.ResponseError(SocketId, "", "missing MessageName.");
                 return;
             }
 
-            if(!msf.ContainsKey(header.MessageName))
+            if(!msf.ContainsKey(frame.header.MessageName))
             {
                 //this.ResponseError(SocketId, "", "unknow MessageName.");
                 return;
             }
-            MethodInfo mf = msf[header.MessageName];
+            MethodInfo mf = msf[frame.header.MessageName];
 
             // Check RequestId not null or empty
-            if (header.RequestId == null || header.RequestId.Trim() == "")
+            if (frame.header.RequestId == null || frame.header.RequestId.Trim() == "")
             {
                 //this.ResponseError(SocketId, "", "missing RequestId.");
                 return;
@@ -216,10 +332,7 @@ namespace AutoBUS
 
             try
             {
-                byte[] data = new byte[buff.Length - bodyBegin];
-                Buffer.BlockCopy(buff, bodyBegin, data, 0, data.Length);
-
-                mf.Invoke(this.mr, new object[] { SocketId, header, data });
+                mf.Invoke(this.mr, new object[] { SocketId, frame });
             }
             catch(Exception ex){this.Logger(ex);}
         }
@@ -232,28 +345,12 @@ namespace AutoBUS
         public void Deliver(long SocketId, byte[] buff)
         {
             StackTrace stackTrace = new StackTrace();
-            string MsgName = stackTrace.GetFrame(1).GetMethod().Name;
+            string MessageName = stackTrace.GetFrame(1).GetMethod().Name;
             string RequestId = this.options.MainServerNumber.ToString() + "_" + Guid.NewGuid().ToString();
 
+            Frame frame = new Frame(MessageName, RequestId);
 
-            byte[] data = this.ConvertStringToBytes($"MessageName:{MsgName}\nRequestId:{RequestId}\n\n");
-            int dataLength = data.Length;
-
-
-            Array.Resize(ref data, data.Length + buff.Length);
-            Buffer.BlockCopy(buff, 0, data, dataLength, buff.Length);
-
-            this.sm.Send(SocketId, data);
-        }
-
-        public byte[] ConvertStringToBytes(string msg)
-        {
-            return this.encoding.GetBytes(msg);
-        }
-
-        public string ConvertBytesToString(byte[] msg)
-        {
-            return this.encoding.GetString(msg);
+            this.sm.Send(SocketId, frame.GetBuffer());
         }
 
         public void Logger(Exception ex)
@@ -279,9 +376,9 @@ namespace AutoBUS
             /// </summary>
             /// <param name="SocketId"></param>
             /// <param name="data"></param>
-            public void VersionCheck(long SocketId, Broker.Header header, byte[] data)
+            public void VersionCheck(long SocketId, Broker.Frame frame)
             {
-                UInt16 clientVersion = BitConverter.ToUInt16(data);
+                UInt16 clientVersion = BitConverter.ToUInt16(frame.DataBytes);
 
                 if(clientVersion > this.broker.BrokerVersion)
                 {
