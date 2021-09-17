@@ -1,5 +1,4 @@
-﻿using EzSockets;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
@@ -362,63 +361,6 @@ namespace AutoBUS
 
         }
 
-    }
-
-    namespace Messages
-    {
-        public class Receive
-        {
-            private readonly Broker broker;
-            public Receive(Broker broker)
-            {
-                this.broker = broker;
-                Console.WriteLine("Messages waiting to be called...");
-            }
-
-            /// <summary>
-            /// Check version
-            /// </summary>
-            /// <param name="SocketId"></param>
-            /// <param name="data"></param>
-            public void VersionCheck(long SocketId, Broker.Frame frame)
-            {
-                UInt16 clientVersion = BitConverter.ToUInt16(frame.DataBytes);
-
-                if(clientVersion > this.broker.BrokerVersion)
-                {
-                    this.broker.ms.VersionCheck(SocketId);
-                }
-
-                SocketMiddleware.UserData userData = this.broker.sm.GetSocketData(SocketId);
-                userData.NegociateVersion = this.broker.BrokerVersion;
-                this.broker.sm.SetSocketData(SocketId, userData);
-            }
-        }
-
-        public class Send
-        {
-            private readonly Broker broker;
-            public Send(Broker broker)
-            {
-                this.broker = broker;
-                Console.WriteLine("Messages ready to be sent...");
-            }
-
-            /// <summary>
-            /// Check version
-            /// </summary>
-            /// <param name="SocketId"></param>
-            /// <param name="data"></param>
-            public void VersionCheck(long SocketId)
-            {
-                SocketMiddleware.UserData userData = this.broker.sm.GetSocketData(SocketId);
-                userData.NegociateVersion = this.broker.BrokerVersion;
-                this.broker.sm.SetSocketData(SocketId, userData);
-
-                byte[] buff = BitConverter.GetBytes((UInt16)this.broker.BrokerVersion);
-                this.broker.Deliver(SocketId, buff);
-            }
-        }
     }
 
 

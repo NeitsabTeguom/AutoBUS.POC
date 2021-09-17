@@ -2,17 +2,17 @@
 using System.Net.Sockets;
 using System.Threading.Tasks;
 
-namespace EzSockets
+namespace AutoBUS.Sockets
 {
     /// <summary>
     /// Listen and accept new connections.
     /// </summary>
-    public class EzSocketListener
+    public class SocketListener
     {
         /// <summary>
         /// The class that handle socket events.
         /// </summary>
-        public IEzEventsListener EventsListener { get; private set; }
+        public IEventsListener EventsListener { get; private set; }
 
         // listener to bind and accept connections on port
         TcpListener _listener;
@@ -31,7 +31,7 @@ namespace EzSockets
         /// Create the sockets listener.
         /// </summary>
         /// <param name="eventsListener">Object to handle socket events.</param>
-        public EzSocketListener(IEzEventsListener eventsListener)
+        public SocketListener(IEventsListener eventsListener)
         {
             EventsListener = eventsListener;
         }
@@ -39,7 +39,7 @@ namespace EzSockets
         /// <summary>
         /// Close socket listener.
         /// </summary>
-        ~EzSocketListener()
+        ~SocketListener()
         {
             if (_listener != null)
             {
@@ -65,7 +65,7 @@ namespace EzSockets
             while (IsListening)
             {
                 var client = _listener.AcceptTcpClient();
-                var sock = new EzSocket(client, EventsListener);
+                var sock = new Socket(client, EventsListener);
                 // ^ while we don't do anything with 'sock' here, it will trigger event internally.
                 // the user should use it from there.
             }

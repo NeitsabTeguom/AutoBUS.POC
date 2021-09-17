@@ -1,15 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Timers;
-using EzSockets;
+using AutoBUS.Sockets;
 
 namespace AutoBUS
 {
     public class SocketMiddleware
 	{
-		// https://github.com/RonenNess/EzSockets
-
 		private int port;
 
 		public enum SocketType
@@ -23,24 +20,24 @@ namespace AutoBUS
 		/// <summary>
 		/// Socket client
 		/// </summary>
-		private EzSocket client;
+		private Socket client;
 
 		/// <summary>
 		/// Socket server
 		/// </summary>
-		private EzSocketListener server;
+		private SocketListener server;
 
 		/// <summary>
 		/// Socket events
 		/// </summary>
-		private EzEventsListener listener;
+		private EventsListener listener;
 
 		/// <summary>
 		/// Sockets clients list
 		/// </summary>
-		private Dictionary<long, EzSocket> sockets = new Dictionary<long, EzSocket>();
+		private Dictionary<long, Socket> sockets = new Dictionary<long, Socket>();
 
-		public class UserData
+		public class SocketInfos
         {
 			public UInt16 NegociateVersion { get; set; } = 1;
         }
@@ -58,7 +55,7 @@ namespace AutoBUS
 			this.broker = new Broker(this);
 
 			// create new server with default event listener and add some events
-			this.listener = new EzEventsListener()
+			this.listener = new EventsListener()
 			{
 				OnNewConnectionHandler = OnNewConnectionHandler,
 				OnConnectionClosedHandler = OnConnectionClosedHandler,
@@ -72,12 +69,12 @@ namespace AutoBUS
 			{
 				case SocketType.Server:
 					{
-						this.server = new EzSocketListener(this.listener);
+						this.server = new SocketListener(this.listener);
 						break;
 					}
 				case SocketType.Client:
 					{ 
-						this.client = new EzSocket(ip, port, this.listener);
+						this.client = new Socket(ip, port, this.listener);
 						break;
 					}
 			}
@@ -198,7 +195,7 @@ namespace AutoBUS
 		/// </summary>
 		/// <param name="SocketId"></param>
 		/// <returns></returns>
-		public UserData GetSocketData(long SocketId)
+		public SocketInfos GetSocketInfo(long SocketId)
 		{
 			switch (this.socketType)
 			{
@@ -206,13 +203,13 @@ namespace AutoBUS
 					{
 						if (this.sockets.ContainsKey(SocketId))
 						{
-							return (UserData)(this.sockets[SocketId].UserData ?? new UserData());
+							return (SocketInfos)(this.sockets[SocketId].Infos ?? new SocketInfos());
 						}
 						break;
 					}
 				case SocketType.Client:
 					{
-						return (UserData)(this.client.UserData ?? new UserData());
+						return (SocketInfos)(this.client.Infos ?? new SocketInfos());
 					}
 			}
 			return null;
@@ -223,48 +220,48 @@ namespace AutoBUS
 		/// </summary>
 		/// <param name="SocketId"></param>
 		/// <param name="userData"></param>
-		public void SetSocketData(long SocketId, UserData userData)
+		public void SetSocketInfo(long SocketId, SocketInfos infos)
 		{
 			switch (this.socketType)
 			{
 				case SocketType.Server:
 					{
-						this.sockets[SocketId].UserData = userData;
+						this.sockets[SocketId].Infos = infos;
 						break;
 					}
 				case SocketType.Client:
 					{
-						this.client.UserData = userData;
+						this.client.Infos = infos;
 						break;
 					}
 			}
 		}
 
-		private void OnNewConnectionHandler(EzSocket socket)
+		private void OnNewConnectionHandler(Socket socket)
         {
 			this.sockets.Add(socket.SocketId, socket);
 			Console.WriteLine("Connected!");
 			socket.StartReadingMessages(); // <-- this will make the new socket listen to incoming messages and trigger events.
 		}
 
-		private void OnConnectionClosedHandler(EzSocket socket)
+		private void OnConnectionClosedHandler(Socket socket)
 		{
 			this.sockets.Remove(socket.SocketId);
 			Console.WriteLine("Connection Closed!");
 		}
 
-		private void OnMessageReadHandler(EzSocket socket, byte[] data)
+		private void OnMessageReadHandler(Socket socket, byte[] data)
 		{
 			this.broker.TakeIn(socket.SocketId, data);
 			Console.WriteLine("Read message!");
 		}
 
-		private void OnMessageSendHandler(EzSocket socket, byte[] data)
+		private void OnMessageSendHandler(Socket socket, byte[] data)
 		{
 			Console.WriteLine("Sent message!");
 		}
 
-		private ExceptionHandlerResponse OnExceptionHandler(EzSocket socket, Exception ex)
+		private ExceptionHandlerResponse OnExceptionHandler(Socket socket, Exception ex)
 		{
 			Console.WriteLine("Error! " + ex.ToString());
 			return ExceptionHandlerResponse.CloseSocket;

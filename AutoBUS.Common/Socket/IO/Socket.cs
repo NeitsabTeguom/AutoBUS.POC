@@ -5,19 +5,19 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace EzSockets
+namespace AutoBUS.Sockets
 {
     /// <summary>
     /// A simple socket wrapper.
     /// </summary>
-    public class EzSocket
+    public class Socket
     {
         #region Members
 
         /// <summary>
         /// Events handler.
         /// </summary>
-        private IEzEventsListener _eventsListener;
+        private IEventsListener _eventsListener;
 
         /// <summary>
         /// The socket object we wrap.
@@ -78,7 +78,7 @@ namespace EzSockets
         /// <summary>
         /// Optional data you can attach to this socket.
         /// </summary>
-        public object UserData;
+        public object Infos;
 
         // are we currently in a reading messages loop?
         bool _readingLoop;
@@ -121,7 +121,7 @@ namespace EzSockets
         /// <param name="ip">IP to connect to or null to use localhost.</param>
         /// <param name="port">Port to connect to.</param>
         /// <param name="eventsListener">Object to handle socket events.</param>
-        public EzSocket(string ip, int port, IEzEventsListener eventsListener)
+        public Socket(string ip, int port, IEventsListener eventsListener)
         {
             // store events listener
             _eventsListener = eventsListener;
@@ -150,7 +150,7 @@ namespace EzSockets
         /// </summary>
         /// <param name="socket">TCP client to wrap.</param>
         /// <param name="eventsListener">Object to handle socket events.</param>
-        public EzSocket(TcpClient socket, IEzEventsListener eventsListener)
+        public Socket(TcpClient socket, IEventsListener eventsListener)
         {
             // store events listener
             _eventsListener = eventsListener;
@@ -174,7 +174,7 @@ namespace EzSockets
         /// <summary>
         /// Socket destructor.
         /// </summary>
-        ~EzSocket()
+        ~Socket()
         {
             Close();
         }
@@ -544,7 +544,7 @@ namespace EzSockets
                 // sanity check
                 if (messagesize > MaxMessageSize)
                 {
-                    throw new Exception("Message buffer too big! You can set `EzSocket.MaxMessageSize` to allow bigger buffers.");
+                    throw new Exception("Message buffer too big! You can set `Socket.MaxMessageSize` to allow bigger buffers.");
                 }
 
                 // no message? usually happens while disconnecting..
@@ -594,7 +594,7 @@ namespace EzSockets
                 // sanity check
                 if (messagesize > MaxMessageSize)
                 {
-                    throw new Exception("Message buffer too big! You can set `EzSocket.MaxMessageSize` to allow bigger buffers.");
+                    throw new Exception("Message buffer too big! You can set `Socket.MaxMessageSize` to allow bigger buffers.");
                 }
 
                 // no message? usually happens while disconnecting..

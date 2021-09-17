@@ -1,23 +1,23 @@
 ﻿using System;
 
-namespace EzSockets
+namespace AutoBUS.Sockets
 {
     /// <summary>
     /// Class to handle different events from sockets.
     /// </summary>
-    public class EzEventsListener : IEzEventsListener
+    public class EventsListener : IEventsListener
     {
         /// <summary>
         /// Called when data is sent.
         /// </summary>
-        public Action<EzSocket, byte[]> OnDataSendHandler;
+        public Action<Socket, byte[]> OnDataSendHandler;
 
         /// <summary>
         /// Trigger the OnDataSend event.
         /// </summary>
         /// <param name="socket">Socket the event originated from.</param>
         /// <param name="data">Data sent.</param>
-        public virtual void OnDataSend(EzSocket socket, byte[] data)
+        public virtual void OnDataSend(Socket socket, byte[] data)
         {
             OnDataSendHandler?.Invoke(socket, data);
         }
@@ -25,14 +25,14 @@ namespace EzSockets
         /// <summary>
         /// Called when data is read.
         /// </summary>
-        public Action<EzSocket, byte[]> OnDataReadHandler;
+        public Action<Socket, byte[]> OnDataReadHandler;
 
         /// <summary>
         /// Trigger the OnDataRead event.
         /// </summary>
         /// <param name="socket">Socket the event originated from.</param>
         /// <param name="data">Data read.</param>
-        public virtual void OnDataRead(EzSocket socket, byte[] data)
+        public virtual void OnDataRead(Socket socket, byte[] data)
         {
             OnDataReadHandler?.Invoke(socket, data);
         }
@@ -40,14 +40,14 @@ namespace EzSockets
         /// <summary>
         /// Called when a whole framed message is sent.
         /// </summary>
-        public Action<EzSocket, byte[]> OnMessageSendHandler;
+        public Action<Socket, byte[]> OnMessageSendHandler;
 
         /// <summary>
         /// Trigger the OnMessageSend event.
         /// </summary>
         /// <param name="socket">Socket the event originated from.</param>
         /// <param name="data">Data sent.</param>
-        public virtual void OnMessageSend(EzSocket socket, byte[] data)
+        public virtual void OnMessageSend(Socket socket, byte[] data)
         {
             OnMessageSendHandler?.Invoke(socket, data);
         }
@@ -55,14 +55,14 @@ namespace EzSockets
         /// <summary>
         /// Called when a whole framed message is read.
         /// </summary>
-        public Action<EzSocket, byte[]> OnMessageReadHandler;
+        public Action<Socket, byte[]> OnMessageReadHandler;
 
         /// <summary>
         /// Trigger the OnMessageRead event.
         /// </summary>
         /// <param name="socket">Socket the event originated from.</param>
         /// <param name="data">Data read.</param>
-        public virtual void OnMessageRead(EzSocket socket, byte[] data)
+        public virtual void OnMessageRead(Socket socket, byte[] data)
         {
             OnMessageReadHandler?.Invoke(socket, data);
         }
@@ -70,13 +70,13 @@ namespace EzSockets
         /// <summary>
         /// Called when a new connection is created.
         /// </summary>
-        public Action<EzSocket> OnNewConnectionHandler;
+        public Action<Socket> OnNewConnectionHandler;
 
         /// <summary>
         /// Trigger the OnNewConnection event.
         /// </summary>
         /// <param name="socket">Socket the event originated from.</param>
-        public virtual void OnNewConnection(EzSocket socket)
+        public virtual void OnNewConnection(Socket socket)
         {
             OnNewConnectionHandler?.Invoke(socket);
         }
@@ -84,13 +84,13 @@ namespace EzSockets
         /// <summary>
         /// Called when a connection is closed.
         /// </summary>
-        public Action<EzSocket> OnConnectionClosedHandler;
+        public Action<Socket> OnConnectionClosedHandler;
 
         /// <summary>
         /// Trigger the OnConnectionClosed event.
         /// </summary>
         /// <param name="socket">Socket the event originated from.</param>
-        public virtual void OnConnectionClosed(EzSocket socket)
+        public virtual void OnConnectionClosed(Socket socket)
         {
             OnConnectionClosedHandler?.Invoke(socket);
         }
@@ -99,14 +99,14 @@ namespace EzSockets
         /// Called on exceptions.
         /// </summary>
         /// <returns>How to handle the exception.</returns>
-        public Func<EzSocket, Exception, ExceptionHandlerResponse> OnExceptionHandler;
+        public Func<Socket, Exception, ExceptionHandlerResponse> OnExceptionHandler;
 
         /// <summary>
         /// Trigger the OnException event.
         /// </summary>
         /// <param name="socket">Socket the event originated from.</param>
         /// <param name="exception">Exception that triggered the event.</param>
-        public virtual ExceptionHandlerResponse OnException(EzSocket socket, Exception exception)
+        public virtual ExceptionHandlerResponse OnException(Socket socket, Exception exception)
         {
             if (OnExceptionHandler == null) { return ExceptionHandlerResponse.CloseSocket; }
             return OnExceptionHandler(socket, exception);
