@@ -6,7 +6,7 @@ project.lock.json
 nupkg/
 
 # Visual Studio Code
-#.vscode
+.vscode
 
 # Rider
 .idea
@@ -34,4 +34,4 @@ msbuild.err
 msbuild.wrn
 
 # Visual Studio 20xx
-#.vs/
+.vs/
