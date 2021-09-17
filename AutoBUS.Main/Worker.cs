@@ -10,6 +10,7 @@ namespace AutoBUS
 {
     public class Worker : BackgroundService
     {
+        private Config config;
 
         private SocketMiddleware sm = null;
 
@@ -17,8 +18,10 @@ namespace AutoBUS
 
         public Worker(ILogger<Worker> logger)
         {
+            this.config = new Config(Config.ServiceTypes.Main);
+
             _logger = logger;
-            this.sm = new SocketMiddleware(SocketMiddleware.SocketType.Server, 11000);
+            this.sm = new SocketMiddleware(SocketMiddleware.SocketType.Server, this.config.serviceConfigMain.Broker.Port);
             this.sm.Start();
         }
 

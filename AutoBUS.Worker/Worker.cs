@@ -11,6 +11,8 @@ namespace AutoBUSClient
 {
     public class Worker : BackgroundService
     {
+        private Config config;
+
         private System.Timers.Timer t;
 
         private SocketMiddleware sm = null;
@@ -19,8 +21,10 @@ namespace AutoBUSClient
 
         public Worker(ILogger<Worker> logger)
         {
+            this.config = new Config(Config.ServiceTypes.Worker);
+
             _logger = logger;
-            this.sm = new SocketMiddleware(SocketMiddleware.SocketType.Client, 11000, null);
+            this.sm = new SocketMiddleware(SocketMiddleware.SocketType.Client, this.config.serviceConfigWorker.Broker.Port, this.config.serviceConfigWorker.Broker.Host);
             this.sm.Start();
         }
 
