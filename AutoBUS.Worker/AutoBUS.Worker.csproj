@@ -2,7 +2,7 @@
 
   <PropertyGroup>
     <TargetFramework>net5.0</TargetFramework>
-    <UserSecretsId>dotnet-AutoBUS-428D24C7-D515-4C61-B299-1E77D652C761</UserSecretsId>
+    <UserSecretsId>dotnet-AutoBUS-Common-536FF90E-7171-4DD3-8021-8DEDD4E17A28</UserSecretsId>
   </PropertyGroup>
 
   <ItemGroup>
@@ -10,6 +10,6 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\EzSockets\EzSockets.csproj" />
+    <ProjectReference Include="..\AutoBUS.Common\AutoBUS.Common.csproj" />
   </ItemGroup>
 </Project>

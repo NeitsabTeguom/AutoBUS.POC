@@ -71,7 +71,7 @@ namespace AutoBUS
 
                 // Parameters
 
-                public Dictionary<string, string> Parameters { get; set; }
+                public Dictionary<string, string> Parameters { get; set; } = new Dictionary<string, string>();
             }
 
             public Header header = new Header();
@@ -250,8 +250,11 @@ namespace AutoBUS
 
                     // Adding data
 
-                    Array.Resize(ref frame, frame.Length + this.DataBytes.Length);
-                    Buffer.BlockCopy(this.DataBytes, 0, frame, frameLength, this.DataBytes.Length);
+                    if (this.DataBytes != null && this.DataBytes.Length > 0)
+                    {
+                        Array.Resize(ref frame, frame.Length + this.DataBytes.Length);
+                        Buffer.BlockCopy(this.DataBytes, 0, frame, frameLength, this.DataBytes.Length);
+                    }
 
                     return frame;
                 }
@@ -349,6 +352,7 @@ namespace AutoBUS
             string RequestId = this.options.MainServerNumber.ToString() + "_" + Guid.NewGuid().ToString();
 
             Frame frame = new Frame(MessageName, RequestId);
+            frame.DataBytes = buff;
 
             this.sm.Send(SocketId, frame.GetBuffer());
         }
