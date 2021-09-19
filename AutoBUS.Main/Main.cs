@@ -26,15 +26,17 @@ namespace AutoBUSMain
                 checkInterval: this.config.sc.Broker.CheckInterval);
         }
 
-        protected override async Task ExecuteAsync(CancellationToken stoppingToken)
+        protected override Task ExecuteAsync(CancellationToken stoppingToken)
         {
             while (!stoppingToken.IsCancellationRequested)
             {
             }
-            
-            if(stoppingToken.IsCancellationRequested)
+
+            if (stoppingToken.IsCancellationRequested)
             {
             }
+
+            throw new NotImplementedException();
         }
 
         public override Task StartAsync(CancellationToken cancellationToken)

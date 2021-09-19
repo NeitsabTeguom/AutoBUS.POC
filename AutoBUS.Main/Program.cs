@@ -1,15 +1,9 @@
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
+using System.Runtime.InteropServices;
 
 namespace AutoBUSMain
 {
-    // 1 Worker : service management
-    // 2 HttpServer : HTTP server IO
-    // 3 Broker : message broker
     public class Program
     {
         public static void Main(string[] args)
@@ -17,11 +11,33 @@ namespace AutoBUSMain
             CreateHostBuilder(args).Build().Run();
         }
 
-        public static IHostBuilder CreateHostBuilder(string[] args) =>
-            Host.CreateDefaultBuilder(args)
+        // https://levelup.gitconnected.com/net-core-worker-service-as-windows-service-or-linux-daemons-a9579a540b77
+        // https://docs.microsoft.com/fr-fr/dotnet/core/extensions/windows-service
+
+        public static IHostBuilder CreateHostBuilder(string[] args)
+        {
+            if(RuntimeInformation.IsOSPlatform(OSPlatform.Linux))
+            {
+                return Host.CreateDefaultBuilder(args)
+                    .UseSystemd()
+                    .ConfigureServices((hostContext, services) =>
+                    {
+                        services.AddHostedService<Main>();
+                    });
+            }
+            else if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
+            {
+                return Host.CreateDefaultBuilder(args)
+                .UseWindowsService((options) =>
+                {
+                    options.ServiceName = "AutoBUS Main service";
+                })
                 .ConfigureServices((hostContext, services) =>
                 {
                     services.AddHostedService<Main>();
                 });
+            }
+            return null;
+        }
     }
 }
