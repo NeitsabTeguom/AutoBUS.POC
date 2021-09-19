@@ -35,3 +35,6 @@ msbuild.wrn
 
 # Visual Studio 20xx
 .vs/
+
+# Make
+make/
