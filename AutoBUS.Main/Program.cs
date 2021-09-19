@@ -5,7 +5,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 
-namespace AutoBUS
+namespace AutoBUSMain
 {
     // 1 Worker : service management
     // 2 HttpServer : HTTP server IO

@@ -1,3 +1,4 @@
+using AutoBUS;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using System;
@@ -6,11 +7,11 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace AutoBUS
+namespace AutoBUSMain
 {
     public class Worker : BackgroundService
     {
-        private Config config;
+        private Config<Config.ServiceConfigMain> config;
 
         private SocketMiddleware sm = null;
 
@@ -18,10 +19,10 @@ namespace AutoBUS
 
         public Worker(ILogger<Worker> logger)
         {
-            this.config = new Config(Config.ServiceTypes.Main);
+            this.config = new Config<Config.ServiceConfigMain>();
 
             _logger = logger;
-            this.sm = new SocketMiddleware(SocketMiddleware.SocketType.Server, this.config.serviceConfigMain.Broker.Port);
+            this.sm = new SocketMiddleware(SocketMiddleware.SocketType.Server, this.config.sc.Broker.Port);
             this.sm.Start();
         }
 

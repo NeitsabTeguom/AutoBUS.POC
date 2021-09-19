@@ -8,21 +8,14 @@ using System.Threading.Tasks;
 
 namespace AutoBUS
 {
-    public partial class Config
+    public partial class Config<TConfig> where TConfig : class, new()
     {
-        public enum ServiceTypes { Main, Worker }
-
-        public ServiceTypes serviceType { get; private set; }
-
         public string configFile { get; private set; }
 
-        public ServiceConfigMain serviceConfigMain;
+        public TConfig sc { get; set; } = new TConfig();
 
-        public ServiceConfigWorker serviceConfigWorker;
-
-        public Config(ServiceTypes serviceType)
+        public Config()
         {
-            this.serviceType = serviceType;
             this.LoadConfig();
         }
 
@@ -47,9 +40,9 @@ namespace AutoBUS
 
         private void SaveConfig()
         {
-            ServiceConfig sc = this.GetConfig();
+            this.SetConfig();
 
-            string jsonConfig = JsonSerializer.Serialize(sc, this.GetConfigType(), new JsonSerializerOptions() { WriteIndented = true });
+            string jsonConfig = JsonSerializer.Serialize<TConfig>(this.sc, new JsonSerializerOptions() { WriteIndented = true });
 
             File.WriteAllText(this.configFile, jsonConfig);
         }
@@ -58,74 +51,19 @@ namespace AutoBUS
         {
             string jsonConfig = File.ReadAllText(this.configFile);
 
-            object sc = JsonSerializer.Deserialize(jsonConfig, this.GetConfigType());
+            this.sc = JsonSerializer.Deserialize<TConfig>(jsonConfig);
 
-            this.SetConfig(sc);
+            this.SetConfig(this.sc);
         }
 
-        private ServiceConfig GetConfig()
+        private void SetConfig(TConfig sc = null)
         {
-            ServiceConfig sc = null;
-
-            if (this.serviceType == ServiceTypes.Main)
-            {
-                if (this.serviceConfigMain == null)
-                {
-                    sc = new ServiceConfigMain();
-                }
-                else
-                {
-                    sc = this.serviceConfigMain;
-                }
-            }
-            else if (this.serviceType == ServiceTypes.Worker)
-            {
-                if (this.serviceConfigWorker == null)
-                {
-                    sc = new ServiceConfigWorker();
-                }
-                else
-                {
-                    sc = this.serviceConfigWorker;
-                }
-            }
-
-            return sc;
-        }
-
-        private Type GetConfigType()
-        {
-            Type t = null;
-
-            if (this.serviceType == ServiceTypes.Main)
-            {
-                t = typeof(ServiceConfigMain);
-            }
-            else if (this.serviceType == ServiceTypes.Worker)
-            {
-                t = typeof(ServiceConfigWorker);
-            }
-
-            return t;
-        }
-
-        private void SetConfig(object sc)
-        {
-            if (this.serviceType == ServiceTypes.Main)
+            if (this.sc == null)
             {
                 if (sc == null)
                 {
-                    sc = new ServiceConfigMain();
+                    this.sc = new TConfig();
                 }
-                this.serviceConfigMain = (ServiceConfigMain)sc;
-            }
-            else if (this.serviceType == ServiceTypes.Worker)
-            {
-                if (sc == null)
-                {
-                    sc = new ServiceConfigWorker();
-                }
-                this.serviceConfigWorker = (ServiceConfigWorker)sc;
             }
         }
     }

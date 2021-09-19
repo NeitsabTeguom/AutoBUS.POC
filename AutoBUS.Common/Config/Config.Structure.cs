@@ -24,7 +24,7 @@ namespace AutoBUS
 
         #region Main service config
 
-        public class ServiceConfigMain : ServiceConfig
+        public class ServiceConfigMain : AutoBUS.Config.ServiceConfig
         {
         }
 
@@ -32,12 +32,12 @@ namespace AutoBUS
 
         #region Worker service config
 
-        public class ServiceConfigWorker : ServiceConfig
+        public class ServiceConfigWorker : AutoBUS.Config.ServiceConfig
         {
             public new Worker_Broker Broker { get; set; } = new Worker_Broker();
         }
 
-        public class Worker_Broker : Broker
+        public class Worker_Broker : AutoBUS.Config.Broker
         {
             public string Host { get; set; } = "localhost";
         }

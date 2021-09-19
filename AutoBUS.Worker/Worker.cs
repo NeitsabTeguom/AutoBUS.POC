@@ -7,11 +7,11 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace AutoBUSClient
+namespace AutoBUSWorker
 {
     public class Worker : BackgroundService
     {
-        private Config config;
+        private Config<Config.ServiceConfigWorker> config;
 
         private System.Timers.Timer t;
 
@@ -21,10 +21,10 @@ namespace AutoBUSClient
 
         public Worker(ILogger<Worker> logger)
         {
-            this.config = new Config(Config.ServiceTypes.Worker);
+            this.config = new Config<Config.ServiceConfigWorker>();
 
             _logger = logger;
-            this.sm = new SocketMiddleware(SocketMiddleware.SocketType.Client, this.config.serviceConfigWorker.Broker.Port, this.config.serviceConfigWorker.Broker.Host);
+            this.sm = new SocketMiddleware(SocketMiddleware.SocketType.Client, this.config.sc.Broker.Port, this.config.sc.Broker.Host);
             this.sm.Start();
         }
 
