@@ -35,10 +35,8 @@ cd %mypath%
 
 echo.
 echo Copie Main Installer
-xcopy %mypath%AutoBUS.Main\Installer\Install.cmd %make%\AutoBUS.Main\ /B/V/Y/E
-xcopy %mypath%AutoBUS.Main\Installer\Uninstall.cmd %make%\AutoBUS.Main\ /B/V/Y/E
-xcopy %mypath%AutoBUS.Main\Installer\Start.cmd %make%\AutoBUS.Main\ /B/V/Y/E
-xcopy %mypath%AutoBUS.Main\Installer\Stop.cmd %make%\AutoBUS.Main\ /B/V/Y/E
+xcopy %mypath%AutoBUS.Main\Installer\*.cmd %make%\AutoBUS.Main\ /B/V/Y/E
+xcopy %mypath%AutoBUS.Main\Installer\*.sh %make%\AutoBUS.Main\ /B/V/Y/E
 
 REM Worker
 
@@ -63,10 +61,10 @@ cd %mypath%
 
 echo.
 echo Copie Worker Installer
-xcopy %mypath%AutoBUS.Worker\Installer\Install.cmd %make%\AutoBUS.Worker\ /B/V/Y/E
-xcopy %mypath%AutoBUS.Worker\Installer\Uninstall.cmd %make%\AutoBUS.Worker\ /B/V/Y/E
-xcopy %mypath%AutoBUS.Worker\Installer\Start.cmd %make%\AutoBUS.Worker\ /B/V/Y/E
-xcopy %mypath%AutoBUS.Worker\Installer\Stop.cmd %make%\AutoBUS.Worker\ /B/V/Y/E
-
+xcopy %mypath%AutoBUS.Worker\Installer\*.cmd %make%\AutoBUS.Worker\ /B/V/Y/E
+xcopy %mypath%AutoBUS.Worker\Installer\*.sh %make%\AutoBUS.Worker\ /B/V/Y/E
 
 del %logfile%
+
+
+xcopy %mypath%README.md %make%\ /B/V/Y/E
