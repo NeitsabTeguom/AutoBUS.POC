@@ -5,25 +5,24 @@ using System;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace AutoBUSWorker
+namespace AutoBUSMain
 {
-    public class Worker : BackgroundService
+    public class Main : BackgroundService
     {
-        private Config<Config.ServiceConfigWorker> config;
+        private Config<Config.ServiceConfigMain> config;
 
         private SocketMiddleware sm = null;
 
-        private readonly ILogger<Worker> _logger;
+        private readonly ILogger<Main> _logger;
 
-        public Worker(ILogger<Worker> logger)
+        public Main(ILogger<Main> logger)
         {
-            this.config = new Config<Config.ServiceConfigWorker>();
+            this.config = new Config<Config.ServiceConfigMain>();
 
             _logger = logger;
             this.sm = new SocketMiddleware(
-                SocketMiddleware.SocketType.Client, 
-                this.config.sc.Broker.Port, 
-                host: this.config.sc.Broker.Host,
+                SocketMiddleware.SocketType.Server, 
+                this.config.sc.Broker.Port,
                 checkInterval: this.config.sc.Broker.CheckInterval);
         }
 
@@ -32,8 +31,8 @@ namespace AutoBUSWorker
             while (!stoppingToken.IsCancellationRequested)
             {
             }
-
-            if (stoppingToken.IsCancellationRequested)
+            
+            if(stoppingToken.IsCancellationRequested)
             {
             }
         }
@@ -42,7 +41,7 @@ namespace AutoBUSWorker
         {
             try
             {
-                _logger.LogInformation("Worker starting...");
+                _logger.LogInformation("Main starting...");
                 this.sm.Start();
             }
             catch { }
@@ -68,7 +67,7 @@ namespace AutoBUSWorker
         {
             try
             {
-                _logger.LogInformation("Worker stopping...");
+                _logger.LogInformation("Main stopping...");
                 this.sm.Stop();
             }
             catch { }

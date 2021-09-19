@@ -18,6 +18,7 @@ namespace AutoBUS
         public class Broker
         {
             public int Port { get; set; } = 11000;
+            public double CheckInterval { get; set; } = 1000;
         }
 
         #endregion Common config

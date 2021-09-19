@@ -1,13 +1,15 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Timers;
 using AutoBUS.Sockets;
 
 namespace AutoBUS
 {
     public class SocketMiddleware
 	{
-		private int port;
+		public int port { get; private set; }
+		public string host { get; private set; }
 
 		public enum SocketType
         {
@@ -37,6 +39,8 @@ namespace AutoBUS
 		/// </summary>
 		private Dictionary<long, Socket> sockets = new Dictionary<long, Socket>();
 
+		private Timer checkTimer;
+
 		public class SocketInfos
         {
 			public UInt16 NegociateVersion { get; set; } = 1;
@@ -47,9 +51,16 @@ namespace AutoBUS
 		public SocketMiddleware(
 			SocketType socketType,
 			int port, 
-			string ip = null)
+			string host = null,
+			double checkInterval = 1000)
 		{
 			this.port = port;
+			this.host = host;
+
+			this.checkTimer = new Timer();
+			this.checkTimer.Interval = checkInterval;
+			this.checkTimer.AutoReset = true;
+			this.checkTimer.Elapsed += CheckTimer_Elapsed;
 
 			// begin with broker, because it must be available before message coming
 			this.broker = new Broker(this);
@@ -65,6 +76,12 @@ namespace AutoBUS
 			};
 
 			this.socketType = socketType;
+
+			this.Init();
+		}
+
+		private void Init()
+        {
 			switch (this.socketType)
 			{
 				case SocketType.Server:
@@ -73,38 +90,83 @@ namespace AutoBUS
 						break;
 					}
 				case SocketType.Client:
-					{ 
-						this.client = new Socket(ip, port, this.listener);
+					{
+						this.client = new Socket(this.host, this.port, this.listener);
 						break;
 					}
 			}
 		}
 
-		/// <summary>
-		/// Satrt listening on port
-		/// </summary>
-		public void Start()
-		{
-			switch (this.socketType)
+        private void CheckTimer_Elapsed(object sender, ElapsedEventArgs e)
+        {
+			try
 			{
-				case SocketType.Server:
-					{
-						Console.WriteLine("Listener running...");
-						this.server?.ListenAsync(this.port);
-						break;
-					}
-				case SocketType.Client:
-					{
-						Console.WriteLine("Client running...");
-						this.client?.StartReadingMessages();
-
-						if (this.socketType == SocketType.Client)
+				switch (this.socketType)
+				{
+					case SocketType.Server:
 						{
-							this.broker.ms.VersionCheck(-1);
+							if (this.server == null || !this.server.IsListening)
+							{
+								try
+								{
+									this.server.StopListening();
+									this.Init();
+									this.Start();
+								}
+								catch { }
+							}
+							break;
 						}
-						break;
-					}
-			}
+					case SocketType.Client:
+						{
+							if (this.client == null || !this.client.Connected)
+							{
+								try
+								{
+									this.client.Close();
+									this.Init();
+									this.Start();
+								}
+								catch { }
+							}
+							break;
+						}
+				}
+            }
+            catch { }
+		}
+
+        /// <summary>
+        /// Satrt listening on port
+        /// </summary>
+        public void Start()
+		{
+			try
+			{
+				switch (this.socketType)
+				{
+					case SocketType.Server:
+						{
+							this.server?.ListenAsync(this.port);
+							Console.WriteLine("Listener running...");
+							break;
+						}
+					case SocketType.Client:
+						{
+							this.client?.StartReadingMessages();
+							Console.WriteLine("Client running...");
+
+							if (this.socketType == SocketType.Client)
+							{
+								this.broker.ms.VersionCheck(-1);
+							}
+							break;
+						}
+				}
+            }
+            catch { }
+
+			this.checkTimer.Start();
 		}
 
         /// <summary>
@@ -112,6 +174,8 @@ namespace AutoBUS
         /// </summary>
         public void Stop()
 		{
+			this.checkTimer.Stop();
+
 			long[] keys = this.sockets.Keys.ToArray();
 			foreach (long SocketId in keys)
             {
