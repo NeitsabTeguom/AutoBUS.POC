@@ -37,7 +37,13 @@ namespace AutoBUSMain
                     services.AddHostedService<Main>();
                 });
             }
-            return null;
+
+            // Just an executable for others
+            return Host.CreateDefaultBuilder(args)
+            .ConfigureServices((hostContext, services) =>
+            {
+                services.AddHostedService<Main>();
+            });
         }
     }
 }
