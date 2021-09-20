@@ -1,6 +1,8 @@
 #!/bin/bash
 echo Install of AutoBUS Worker service
 
+/usr/sbin/AutoBUS/Worker/Uninstall.sh
+
 mkdir /usr/sbin/AutoBUS/
 mkdir /usr/sbin/AutoBUS/Worker/
 mkdir /usr/sbin/AutoBUS/Worker/bin/

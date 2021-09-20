@@ -1,6 +1,8 @@
 #!/bin/bash
 echo Install of AutoBUS Main service
 
+/usr/sbin/AutoBUS/Main/Uninstall.sh
+
 mkdir /usr/sbin/AutoBUS/
 mkdir /usr/sbin/AutoBUS/Main/
 mkdir /usr/sbin/AutoBUS/Main/bin/

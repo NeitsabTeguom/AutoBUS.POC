@@ -3,6 +3,8 @@ TITLE Install of AutoBUS Worker service
 
 set mypath=%~dp0
 
+"%ProgramFiles%\AutoBUS\Worker\Uninstall.cmd"
+
 mkdir "%ProgramFiles%\AutoBUS\"
 mkdir "%ProgramFiles%\AutoBUS\Worker\"
 xcopy %mypath%Start.cmd "%ProgramFiles%\AutoBUS\Worker\" /B/V/Y/E

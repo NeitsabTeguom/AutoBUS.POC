@@ -3,6 +3,8 @@ TITLE Install of AutoBUS Main service
 
 set mypath=%~dp0
 
+"%ProgramFiles%\AutoBUS\Main\Uninstall.cmd"
+
 mkdir "%ProgramFiles%\AutoBUS\"
 mkdir "%ProgramFiles%\AutoBUS\Main\"
 xcopy %mypath%Start.cmd "%ProgramFiles%\AutoBUS\Main\" /B/V/Y/E
