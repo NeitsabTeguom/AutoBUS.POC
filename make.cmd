@@ -37,6 +37,7 @@ echo.
 echo Copie Main Installer
 xcopy %mypath%AutoBUS.Main\Installer\*.cmd %make%\AutoBUS.Main\ /B/V/Y/E
 xcopy %mypath%AutoBUS.Main\Installer\*.sh %make%\AutoBUS.Main\ /B/V/Y/E
+xcopy %mypath%AutoBUS.Main\Installer\*.service %make%\AutoBUS.Main\ /B/V/Y/E
 
 REM Worker
 
@@ -63,6 +64,7 @@ echo.
 echo Copie Worker Installer
 xcopy %mypath%AutoBUS.Worker\Installer\*.cmd %make%\AutoBUS.Worker\ /B/V/Y/E
 xcopy %mypath%AutoBUS.Worker\Installer\*.sh %make%\AutoBUS.Worker\ /B/V/Y/E
+xcopy %mypath%AutoBUS.Worker\Installer\*.service %make%\AutoBUS.Worker\ /B/V/Y/E
 
 del %logfile%
 
