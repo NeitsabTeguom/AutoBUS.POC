@@ -54,5 +54,14 @@ namespace AutoBUS.Messages
             byte[] buff = BitConverter.GetBytes((UInt16)this.broker.BrokerVersion);
             this.broker.Deliver(SocketId, buff);
         }
+
+        /// <summary>
+        /// Login
+        /// </summary>
+        /// <param name="SocketId"></param>
+        public void Login(long SocketId)
+        {
+
+        }
     }
 }

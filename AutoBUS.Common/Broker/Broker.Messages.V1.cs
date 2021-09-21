@@ -10,6 +10,7 @@
         /// <param name="frame"></param>
         public static void Login(Broker broker, long SocketId, Broker.Frame frame)
         {
+            broker.sm[]
         }
     }
 
