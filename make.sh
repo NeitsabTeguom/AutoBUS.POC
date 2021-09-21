@@ -26,7 +26,7 @@ then
  echo ERREUR DE PUBLICATION - AutoBUS.Main
  echo ----------------------------------------------------
  cat $logfile
- del $logfile
+ rm $logfile
  rm -rf $make\
  exit 1
 fi
@@ -37,6 +37,7 @@ echo
 echo Copie Main Installer
 cp $mypath/AutoBUS.Main/Installer/*.cmd $make/AutoBUS.Main/
 cp $mypath/AutoBUS.Main/Installer/*.sh $make/AutoBUS.Main/
+cp $mypath/AutoBUS.Main/Installer/*.service $make/AutoBUS.Main/
 
 
 # Worker
@@ -54,7 +55,7 @@ then
  echo ERREUR DE PUBLICATION - AutoBUS.Worker
  echo ----------------------------------------------------
  cat $logfile
- del $logfile
+ rm $logfile
  rm -rf $make\
  exit 1
 fi
@@ -65,6 +66,9 @@ echo
 echo Copie Worker Installer
 cp $mypath/AutoBUS.Worker/Installer/*.cmd $make/AutoBUS.Worker/
 cp $mypath/AutoBUS.Worker/Installer/*.sh $make/AutoBUS.Worker/
+cp $mypath/AutoBUS.Worker/Installer/*.service $make/AutoBUS.Worker/
+
+rm $logfile
 
 
 cp $mypath/README.md $make/

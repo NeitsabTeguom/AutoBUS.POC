@@ -10,13 +10,14 @@ mkdir /usr/sbin/AutoBUS/Main/bin/
 cp ./Start.sh /usr/sbin/AutoBUS/Main/
 cp ./Stop.sh /usr/sbin/AutoBUS/Main/
 cp ./Uninstall.sh /usr/sbin/AutoBUS/Main/
-cp ./bin/* /usr/sbin/AutoBUS/Main/bin/
+cp -r ./bin/* /usr/sbin/AutoBUS/Main/bin/
+sudo chmod +x /usr/sbin/AutoBUS/Main/*.sh
 
-sudo chmod +x /usr/sbin/AutoBUS/Main/bin/AutoBUS.Main.exe
+sudo chmod +x /usr/sbin/AutoBUS/Main/bin/AutoBUS.Main
 
-systemctl stop AutoBUS.Main # stop service to release any file locks which could conflict with dotnet publish
+systemctl stop AutoBUS.Main.service
 cp AutoBUS.Main.service /etc/systemd/system/AutoBUS.Main.service
 systemctl daemon-reload
-systemctl enable AutoBUS.Main
+systemctl enable AutoBUS.Main.service
+systemctl start AutoBUS.Main.service
 
-systemctl start AutoBUS.Main

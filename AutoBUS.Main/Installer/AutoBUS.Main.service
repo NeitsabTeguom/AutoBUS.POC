@@ -1,12 +1,13 @@
 [Unit]
 Description=AutoBUS Main daemon, all in one SaaS
+After=network.target
 
 [Service]
-Type=notify
+Type=simple
 # will set the Current Working Directory (CWD). Worker service will have issues without this setting
 #WorkingDirectory=/srv/Worker
 # systemd will run this executable to start the service
-ExecStart=/usr/sbin/AutoBUS/Main/bin/AutoBUS.Main.exe
+ExecStart=/usr/sbin/AutoBUS/Main/bin/AutoBUS.Main
 
 # Use your username to keep things simple.
 # If you pick a different user, make sure dotnet and all permissions are set correctly to run the app
