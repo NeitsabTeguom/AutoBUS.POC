@@ -5,6 +5,7 @@ using System.IO;
 using System.Net;
 using System.Reflection;
 using System.Text;
+using System.Threading.Tasks;
 
 namespace AutoBUS
 {
@@ -27,11 +28,6 @@ namespace AutoBUS
 
         public SocketMiddleware sm;
 
-        // Messages methods
-        private Dictionary<string, MethodInfo> msf = new Dictionary<string, MethodInfo>();
-        // Messages class instance, where to call functions
-        public Messages.Receive mr;
-        public Messages.Send ms;
 
         public UInt16 BrokerVersion { get; private set; } = 1;
 
@@ -56,8 +52,36 @@ namespace AutoBUS
             public class Header
             {
                 // Required properties
-                public string MessageName { get; set; }
-                public string RequestId { get; set; }
+                private string _MessageName;
+                public string MessageName
+                {
+                    get
+                    {
+                        return this._MessageName;
+                    }
+                    set
+                    {
+                        if (this._MessageName==null)
+                        {
+                            this._MessageName = value;
+                        }
+                    }
+                }
+                private string _RequestId;
+                public string RequestId
+                {
+                    get
+                    {
+                        return this._RequestId;
+                    }
+                    set
+                    {
+                        if (this._RequestId == null)
+                        {
+                            this._RequestId = value;
+                        }
+                    }
+                }
 
                 // Not required properties
 
@@ -105,6 +129,9 @@ namespace AutoBUS
             }
 
             // Frame -> Buff
+            public Frame()
+            {
+            }
             public Frame(string MessageName, string RequestId)
             {
                 this.header.MessageName = MessageName;
@@ -126,39 +153,42 @@ namespace AutoBUS
 
                 cursor = 0;
 
-                while (cursor < buff.Length)
+                if (buff != null)
                 {
-                    string name = "";
-                    string value = "";
-
-                    this.GetHeaderParam(buff, ref cursor, out name, out value);
-
-                    // If the property exist in this class, then set it; otherwise put it into parameters dictionary
-                    if (name != "Data" && name != "Parameters")
+                    while (cursor < buff.Length)
                     {
-                        PropertyInfo pi = t.GetProperty(name);
-                        if (pi != null)
+                        string name = "";
+                        string value = "";
+
+                        this.GetHeaderParam(buff, ref cursor, out name, out value);
+
+                        // If the property exist in this class, then set it; otherwise put it into parameters dictionary
+                        if (name != "Data" && name != "Parameters")
                         {
-                            pi.SetValue(this.header, Convert.ChangeType(value, pi.PropertyType));
+                            PropertyInfo pi = t.GetProperty(name);
+                            if (pi != null)
+                            {
+                                pi.SetValue(this.header, Convert.ChangeType(value, pi.PropertyType));
+                            }
+                            else
+                            {
+                                this.header.Parameters.Add(name, value);
+                            }
                         }
                         else
                         {
                             this.header.Parameters.Add(name, value);
                         }
-                    }
-                    else
-                    {
-                        this.header.Parameters.Add(name, value);
-                    }
 
-                    // End of buffer
-                    if (cursor < buff.Length)
-                    {
-                        char c = Convert.ToChar(buff[cursor]);
-                        if (c == '\n')
+                        // End of buffer
+                        if (cursor < buff.Length)
                         {
-                            cursor++;
-                            break;
+                            char c = Convert.ToChar(buff[cursor]);
+                            if (c == '\n')
+                            {
+                                cursor++;
+                                break;
+                            }
                         }
                     }
                 }
@@ -206,8 +236,11 @@ namespace AutoBUS
 
             private void GetData(byte[] buff, ref int cursor)
             {
-                this.DataBytes = new byte[buff.Length - cursor];
-                Buffer.BlockCopy(buff, cursor, this.DataBytes, 0, this.DataBytes.Length);
+                if (buff != null)
+                {
+                    this.DataBytes = new byte[buff.Length - cursor];
+                    Buffer.BlockCopy(buff, cursor, this.DataBytes, 0, this.DataBytes.Length);
+                }
             }
 
             #endregion Buff2Frame
@@ -223,7 +256,7 @@ namespace AutoBUS
 
                     foreach (PropertyInfo pi in t.GetProperties())
                     {
-                        if (t.Name != "Parameters")
+                        if (pi.Name != "Parameters" && pi.Name != "header")
                         {
                             object value = pi.GetValue(this.header);
                             if (value != null)
@@ -283,22 +316,6 @@ namespace AutoBUS
             this.options.MainServerNumber = 1;
 
             this.sm = sm;
-
-            // For more time response, using "reflexion" instead "switch case"
-            // but we nned to load functions in Messages class before
-
-            Type mType = (typeof(Messages.Receive));
-            // Get the public methods.
-            MethodInfo[] mis = mType.GetMethods(BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly);
-            foreach(MethodInfo mi in mis)
-            {
-                msf.Add(mi.Name, mi);
-            }
-            Console.WriteLine("Broker running...");
-
-            this.mr = new Messages.Receive(this);
-
-            this.ms = new Messages.Send(this);
         }
 
         /// <summary>
@@ -310,20 +327,12 @@ namespace AutoBUS
         {
             Frame frame = new Frame(buff);
 
-
             // Check MessageName
             if (frame.header.MessageName == null)
             {
                 //this.ResponseError(SocketId, "", "missing MessageName.");
                 return;
             }
-
-            if(!msf.ContainsKey(frame.header.MessageName))
-            {
-                //this.ResponseError(SocketId, "", "unknow MessageName.");
-                return;
-            }
-            MethodInfo mf = msf[frame.header.MessageName];
 
             // Check RequestId not null or empty
             if (frame.header.RequestId == null || frame.header.RequestId.Trim() == "")
@@ -334,11 +343,12 @@ namespace AutoBUS
 
             try
             {
-                mf.Invoke(this.mr, new object[] { SocketId, frame });
+                SocketMiddleware.SocketInfos si = this.sm.GetSocketInfo(SocketId);
+                si.messages.Receive(this, SocketId, frame);
             }
             catch(Exception ex){this.Logger(ex);}
         }
-
+        /*
         /// <summary>
         /// Outgoing message
         /// </summary>
@@ -354,6 +364,26 @@ namespace AutoBUS
             frame.DataBytes = buff;
 
             this.sm.Send(SocketId, frame.GetBuffer());
+        }*/
+
+        /// <summary>
+        /// Outgoing message
+        /// </summary>
+        /// <param name="SocketId"></param>
+        /// <param name="buff"></param>
+        public void Deliver(long SocketId, Frame sendFrame)
+        {
+            if (sendFrame.header.MessageName == null)
+            {
+                StackTrace stackTrace = new StackTrace();
+                string MessageName = stackTrace.GetFrame(1).GetMethod().Name;
+                sendFrame.header.MessageName = MessageName; // If not set only
+            }
+
+            string RequestId = this.options.MainServerNumber.ToString() + "_" + Guid.NewGuid().ToString();
+            sendFrame.header.RequestId = RequestId; // If not set only
+
+            this.sm.Send(SocketId, sendFrame.GetBuffer());
         }
 
         public void Logger(Exception ex)

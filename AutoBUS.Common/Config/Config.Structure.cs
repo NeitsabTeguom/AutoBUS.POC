@@ -40,7 +40,7 @@ namespace AutoBUS
 
         public class Worker_Broker : AutoBUS.Config.Broker
         {
-            public string Host { get; set; } = "localhost";
+            public string Host { get; set; } = "10.0.2.15";
         }
 
         #endregion Worker service config

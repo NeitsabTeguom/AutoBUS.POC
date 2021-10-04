@@ -30,12 +30,13 @@ namespace AutoBUSMain
         {
             while (!stoppingToken.IsCancellationRequested)
             {
+                Thread.Sleep(1000);
             }
-
+            
             if (stoppingToken.IsCancellationRequested)
             {
             }
-
+            
             throw new NotImplementedException();
         }
 

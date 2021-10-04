@@ -21,7 +21,7 @@ namespace AutoBUSWorker
 
         public static IHostBuilder CreateHostBuilder(string[] args)
         {
-            if (RuntimeInformation.IsOSPlatform(OSPlatform.Linux))
+            if(RuntimeInformation.IsOSPlatform(OSPlatform.Linux))
             {
                 return Host.CreateDefaultBuilder(args)
                     .UseSystemd()
@@ -30,7 +30,7 @@ namespace AutoBUSWorker
                         services.AddHostedService<Worker>();
                     });
             }
-            else if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
+            else if(RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
             {
                 return Host.CreateDefaultBuilder(args)
                 .UseWindowsService((options) =>

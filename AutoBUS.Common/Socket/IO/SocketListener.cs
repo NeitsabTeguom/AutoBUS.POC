@@ -1,5 +1,7 @@
-﻿using System.Net;
+﻿using System;
+using System.Net;
 using System.Net.Sockets;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace AutoBUS.Sockets
@@ -49,6 +51,9 @@ namespace AutoBUS.Sockets
             }
         }
 
+        // Thread signal.
+        public static ManualResetEvent allDone = new ManualResetEvent(false);
+
         /// <summary>
         /// Listen on port and accept connections.
         /// </summary>
@@ -57,24 +62,63 @@ namespace AutoBUS.Sockets
         {
             // create listener and start
             Port = port;
-            _listener = new TcpListener(IPAddress.Any, port);
-            _listener.Start();
 
-            // accept connections in endless loop until set to false
-            IsListening = true;
-            while (IsListening)
+            // Establish the local endpoint for the socket.
+            // The DNS name of the computer
+            // running the listener is "host.contoso.com".
+            IPHostEntry ipHostInfo = Dns.Resolve(Dns.GetHostName());
+            IPAddress ipAddress = ipHostInfo.AddressList[ipHostInfo.AddressList.Length-1];
+            IPEndPoint localEndPoint = new IPEndPoint(ipAddress, port);
+
+            // Create a TCP/IP socket.
+            Socket listener = new Socket(
+                AddressFamily.InterNetwork,
+                SocketType.Stream,
+                ProtocolType.Tcp);
+
+            // Bind the socket to the local endpoint and listen for incoming connections.
+            try
             {
-                var client = _listener.AcceptTcpClient();
-                var sock = new Socket(client, EventsListener);
-                // ^ while we don't do anything with 'sock' here, it will trigger event internally.
-                // the user should use it from there.
-            }
+                listener.Bind(localEndPoint);
+                listener.Listen(100);
+                // accept connections in endless loop until set to false
+                IsListening = true;
+                while (IsListening)
+                {
+                    // Set the event to nonsignaled state.
+                    allDone.Reset();
 
-            // stop listening and delete listener
-            Port = 0;
-            _listener.Stop();
-            _listener.Server.Close();
-            _listener = null;
+                    // Start an asynchronous socket to listen for connections.
+                    listener.BeginAccept(
+                        new AsyncCallback(AcceptCallback),
+                        listener);
+
+                    // Wait until a connection is made before continuing.
+                    allDone.WaitOne();
+                }
+
+                listener.Close();
+                listener.Dispose();
+                listener = null;
+
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e.ToString());
+            }
+        }
+
+        private void AcceptCallback(IAsyncResult ar)
+        {
+            // Signal the main thread to continue.
+            allDone.Set();
+
+            // Get the socket that handles the client request.
+            Socket listener = (Socket)ar.AsyncState;
+            Socket handler = listener.EndAccept(ar);
+
+            var sock = new SocketClient(handler, EventsListener);
+            sock.StartReadingMessages();
         }
 
         /// <summary>

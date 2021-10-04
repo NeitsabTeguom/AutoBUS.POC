@@ -22,7 +22,7 @@ namespace AutoBUS
 		/// <summary>
 		/// Socket client
 		/// </summary>
-		private Socket client;
+		private SocketClient client;
 
 		/// <summary>
 		/// Socket server
@@ -37,13 +37,15 @@ namespace AutoBUS
 		/// <summary>
 		/// Sockets clients list
 		/// </summary>
-		private Dictionary<long, Socket> sockets = new Dictionary<long, Socket>();
+		private Dictionary<long, SocketClient> sockets = new Dictionary<long, SocketClient>();
 
 		private Timer checkTimer;
 
 		public class SocketInfos
         {
-			public UInt16 NegociateVersion { get; set; } = 1;
+			public UInt16? NegociateVersion { get; set; } = null;
+
+			public Messages messages = new Messages();
         }
 
 		private Broker broker;
@@ -58,6 +60,7 @@ namespace AutoBUS
 			this.host = host;
 
 			this.checkTimer = new Timer();
+			this.checkTimer.Enabled = false;
 			this.checkTimer.Interval = checkInterval;
 			this.checkTimer.AutoReset = true;
 			this.checkTimer.Elapsed += CheckTimer_Elapsed;
@@ -91,7 +94,7 @@ namespace AutoBUS
 					}
 				case SocketType.Client:
 					{
-						this.client = new Socket(this.host, this.port, this.listener);
+						this.client = new SocketClient(this.host, this.port, this.listener);
 						break;
 					}
 			}
@@ -99,6 +102,7 @@ namespace AutoBUS
 
         private void CheckTimer_Elapsed(object sender, ElapsedEventArgs e)
         {
+			this.checkTimer.Stop();
 			try
 			{
 				switch (this.socketType)
@@ -134,6 +138,7 @@ namespace AutoBUS
 				}
             }
             catch { }
+			this.checkTimer.Start();
 		}
 
         /// <summary>
@@ -158,15 +163,17 @@ namespace AutoBUS
 
 							if (this.socketType == SocketType.Client)
 							{
-								this.broker.ms.VersionCheck(-1);
+								this.GetSocketInfo(-1).messages.VersionCheck(this.broker, -1);
 							}
 							break;
 						}
 				}
             }
-            catch { }
+            catch(Exception Ex) 
+			{ 
+			}
 
-			this.checkTimer.Start();
+			//this.checkTimer.Start();
 		}
 
         /// <summary>
@@ -301,31 +308,31 @@ namespace AutoBUS
 			}
 		}
 
-		private void OnNewConnectionHandler(Socket socket)
+		private void OnNewConnectionHandler(SocketClient socket)
         {
 			this.sockets.Add(socket.SocketId, socket);
 			Console.WriteLine("Connected!");
-			socket.StartReadingMessages(); // <-- this will make the new socket listen to incoming messages and trigger events.
+			//socket.StartReadingMessages(); // <-- this will make the new socket listen to incoming messages and trigger events.
 		}
 
-		private void OnConnectionClosedHandler(Socket socket)
+		private void OnConnectionClosedHandler(SocketClient socket)
 		{
 			this.sockets.Remove(socket.SocketId);
 			Console.WriteLine("Connection Closed!");
 		}
 
-		private void OnMessageReadHandler(Socket socket, byte[] data)
+		private void OnMessageReadHandler(SocketClient socket, byte[] data)
 		{
-			this.broker.TakeIn(socket.SocketId, data);
 			Console.WriteLine("Read message!");
+			this.broker.TakeIn(socket.SocketId, data);
 		}
 
-		private void OnMessageSendHandler(Socket socket, byte[] data)
+		private void OnMessageSendHandler(SocketClient socket, byte[] data)
 		{
 			Console.WriteLine("Sent message!");
 		}
 
-		private ExceptionHandlerResponse OnExceptionHandler(Socket socket, Exception ex)
+		private ExceptionHandlerResponse OnExceptionHandler(SocketClient socket, Exception ex)
 		{
 			Console.WriteLine("Error! " + ex.ToString());
 			return ExceptionHandlerResponse.CloseSocket;

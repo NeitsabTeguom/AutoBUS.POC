@@ -17,26 +17,31 @@ namespace AutoBUSWorker
 
         public Worker(ILogger<Worker> logger)
         {
-            this.config = new Config<Config.ServiceConfigWorker>();
+            try
+            {
+                this.config = new Config<Config.ServiceConfigWorker>();
 
-            _logger = logger;
-            this.sm = new SocketMiddleware(
-                SocketMiddleware.SocketType.Client, 
-                this.config.sc.Broker.Port, 
-                host: this.config.sc.Broker.Host,
-                checkInterval: this.config.sc.Broker.CheckInterval);
+                _logger = logger;
+                this.sm = new SocketMiddleware(
+                    SocketMiddleware.SocketType.Client,
+                    this.config.sc.Broker.Port,
+                    host: this.config.sc.Broker.Host,
+                    checkInterval: this.config.sc.Broker.CheckInterval);
+            }
+            catch { }
         }
-
+        
         protected override Task ExecuteAsync(CancellationToken stoppingToken)
         {
             while (!stoppingToken.IsCancellationRequested)
             {
+                Thread.Sleep(1000);
             }
 
             if (stoppingToken.IsCancellationRequested)
             {
             }
-
+            
             throw new NotImplementedException();
         }
 

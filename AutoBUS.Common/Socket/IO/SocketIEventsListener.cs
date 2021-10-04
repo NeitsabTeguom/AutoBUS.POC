@@ -29,37 +29,37 @@
         /// <summary>
         /// Called when data is sent.
         /// </summary>
-        void OnDataSend(Socket socket, byte[] data);
+        void OnDataSend(SocketClient socket, byte[] data);
 
         /// <summary>
         /// Called when data is read.
         /// </summary>
-        void OnDataRead(Socket socket, byte[] data);
+        void OnDataRead(SocketClient socket, byte[] data);
 
         /// <summary>
         /// Called when a whole framed message is sent.
         /// </summary>
-        void OnMessageSend(Socket socket, byte[] data);
+        void OnMessageSend(SocketClient socket, byte[] data);
 
         /// <summary>
         /// Called when a whole framed message is read.
         /// </summary>
-        void OnMessageRead(Socket socket, byte[] data);
+        void OnMessageRead(SocketClient socket, byte[] data);
 
         /// <summary>
         /// Called when a new connection is created.
         /// </summary>
-        void OnNewConnection(Socket socket);
+        void OnNewConnection(SocketClient socket);
 
         /// <summary>
         /// Called when a connection is closed.
         /// </summary>
-        void OnConnectionClosed(Socket socket);
+        void OnConnectionClosed(SocketClient socket);
 
         /// <summary>
         /// Called on exceptions.
         /// </summary>
         /// <returns>How to handle the exception.</returns>
-        ExceptionHandlerResponse OnException(Socket socket, System.Exception exception);
+        ExceptionHandlerResponse OnException(SocketClient socket, System.Exception exception);
     }
 }

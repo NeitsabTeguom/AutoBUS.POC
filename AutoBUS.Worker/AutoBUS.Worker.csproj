@@ -2,7 +2,7 @@
 
   <PropertyGroup>
     <TargetFramework>net5.0</TargetFramework>
-    <UserSecretsId>dotnet-AutoBUS-Common-536FF90E-7171-4DD3-8021-8DEDD4E17A28</UserSecretsId>
+    <UserSecretsId>dotnet-AutoBUS-Worker-536FF90E-7171-4DD3-8021-8DEDD4E17A28</UserSecretsId>
   </PropertyGroup>
 
   <ItemGroup>
