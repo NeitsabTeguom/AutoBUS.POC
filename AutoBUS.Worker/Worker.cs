@@ -24,8 +24,6 @@ namespace AutoBUSWorker
                 _logger = logger;
                 this.sm = new SocketMiddleware(
                     SocketMiddleware.SocketType.Client,
-                    this.config.sc.Broker.Port,
-                    host: this.config.sc.Broker.Host,
                     checkInterval: this.config.sc.Broker.CheckInterval);
             }
             catch { }

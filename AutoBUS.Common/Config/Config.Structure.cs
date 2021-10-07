@@ -17,6 +17,8 @@ namespace AutoBUS
 
         public class Broker
         {
+            public string ListenHost { get; set; } = "localhost";
+            public int ListenBacklog { get; set; } = 100;
             public int Port { get; set; } = 11000;
             public double CheckInterval { get; set; } = 1000;
         }
@@ -40,7 +42,7 @@ namespace AutoBUS
 
         public class Worker_Broker : AutoBUS.Config.Broker
         {
-            public string Host { get; set; } = "10.0.2.15";
+            public string Host { get; set; } = "localhost";
         }
 
         #endregion Worker service config

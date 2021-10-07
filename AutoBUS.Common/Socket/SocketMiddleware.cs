@@ -8,9 +8,6 @@ namespace AutoBUS
 {
     public class SocketMiddleware
 	{
-		public int port { get; private set; }
-		public string host { get; private set; }
-
 		public enum SocketType
         {
 			Server,
@@ -52,12 +49,8 @@ namespace AutoBUS
 
 		public SocketMiddleware(
 			SocketType socketType,
-			int port, 
-			string host = null,
 			double checkInterval = 1000)
 		{
-			this.port = port;
-			this.host = host;
 
 			this.checkTimer = new Timer();
 			this.checkTimer.Enabled = false;
@@ -94,7 +87,7 @@ namespace AutoBUS
 					}
 				case SocketType.Client:
 					{
-						this.client = new SocketClient(this.host, this.port, this.listener);
+						this.client = new SocketClient(this.listener);
 						break;
 					}
 			}
@@ -152,7 +145,7 @@ namespace AutoBUS
 				{
 					case SocketType.Server:
 						{
-							this.server?.ListenAsync(this.port);
+							this.server?.ListenAsync();
 							Console.WriteLine("Listener running...");
 							break;
 						}
@@ -169,7 +162,7 @@ namespace AutoBUS
 						}
 				}
             }
-            catch(Exception Ex) 
+            catch 
 			{ 
 			}
 

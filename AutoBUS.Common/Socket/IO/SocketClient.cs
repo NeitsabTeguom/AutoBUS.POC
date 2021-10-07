@@ -12,6 +12,8 @@ namespace AutoBUS.Sockets
     /// </summary>
     public class SocketClient
     {
+        public Config<Config.ServiceConfigWorker> config { get; private set; } = new Config<Config.ServiceConfigWorker>();
+
         #region Members
         // State object for reading client data asynchronously
         public class StateObject
@@ -148,10 +150,13 @@ namespace AutoBUS.Sockets
         /// <param name="ip">IP to connect to or null to use localhost.</param>
         /// <param name="port">Port to connect to.</param>
         /// <param name="eventsListener">Object to handle socket events.</param>
-        public SocketClient(string ip, int port, IEventsListener eventsListener)
+        public SocketClient(IEventsListener eventsListener)
         {
             try
             {
+                string ip = this.config.sc.Broker.Host;
+                int port = this.config.sc.Broker.Port;
+
                 // store events listener
                 _eventsListener = eventsListener;
 
@@ -162,6 +167,10 @@ namespace AutoBUS.Sockets
                 // The name of the
                 // remote device is "host.contoso.com".  
                 IPHostEntry ipHostInfo = Dns.GetHostEntry(ip);
+                if(ipHostInfo.AddressList.Length == 0)
+                {
+                    throw new Exception($"Unknow host / ip : {ip}");
+                }
                 IPAddress ipAddress = ipHostInfo.AddressList[ipHostInfo.AddressList.Length - 1];
                 IPEndPoint remoteEP = new IPEndPoint(ipAddress, port);
 
@@ -289,7 +298,7 @@ namespace AutoBUS.Sockets
 
             try
             {
-                if (this.Client.Connected)
+                if (this.Client != null && this.Client.Connected)
                 {
                     this.Client.Shutdown(SocketShutdown.Both);
                     this.Client.Close();

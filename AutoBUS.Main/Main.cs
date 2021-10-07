@@ -21,8 +21,7 @@ namespace AutoBUSMain
 
             _logger = logger;
             this.sm = new SocketMiddleware(
-                SocketMiddleware.SocketType.Server, 
-                this.config.sc.Broker.Port,
+                SocketMiddleware.SocketType.Server,
                 checkInterval: this.config.sc.Broker.CheckInterval);
         }
 

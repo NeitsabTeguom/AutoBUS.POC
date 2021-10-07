@@ -11,6 +11,8 @@ namespace AutoBUS.Sockets
     /// </summary>
     public class SocketListener
     {
+        public Config<Config.ServiceConfigMain> config { get; private set; } = new Config<Config.ServiceConfigMain>();
+
         /// <summary>
         /// The class that handle socket events.
         /// </summary>
@@ -58,17 +60,22 @@ namespace AutoBUS.Sockets
         /// Listen on port and accept connections.
         /// </summary>
         /// <param name="port">Port to listen to.</param>
-        public void Listen(int port)
+        public void Listen()
         {
             // create listener and start
-            Port = port;
+            this.Port = config.sc.Broker.Port;
 
             // Establish the local endpoint for the socket.
             // The DNS name of the computer
             // running the listener is "host.contoso.com".
-            IPHostEntry ipHostInfo = Dns.Resolve(Dns.GetHostName());
+            string ListenHost = Dns.GetHostName();
+            if (this.config.sc.Broker.ListenHost != null && this.config.sc.Broker.ListenHost.Trim() != "")
+            {
+                ListenHost = this.config.sc.Broker.ListenHost;
+            }
+            IPHostEntry ipHostInfo = Dns.GetHostEntry(ListenHost);
             IPAddress ipAddress = ipHostInfo.AddressList[ipHostInfo.AddressList.Length-1];
-            IPEndPoint localEndPoint = new IPEndPoint(ipAddress, port);
+            IPEndPoint localEndPoint = new IPEndPoint(ipAddress, this.Port);
 
             // Create a TCP/IP socket.
             Socket listener = new Socket(
@@ -80,7 +87,7 @@ namespace AutoBUS.Sockets
             try
             {
                 listener.Bind(localEndPoint);
-                listener.Listen(100);
+                listener.Listen(this.config.sc.Broker.ListenBacklog);
                 // accept connections in endless loop until set to false
                 IsListening = true;
                 while (IsListening)
@@ -124,12 +131,11 @@ namespace AutoBUS.Sockets
         /// <summary>
         /// Listen on port and accept connections in background.
         /// </summary>
-        /// <param name="port">Port to listen to.</param>
-        public void ListenAsync(int port)
+        public void ListenAsync()
         {
             Task.Factory.StartNew(() =>
             {
-                Listen(port);
+                Listen();
             });
         }
 

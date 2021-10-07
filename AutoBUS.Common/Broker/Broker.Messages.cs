@@ -123,22 +123,23 @@ namespace AutoBUS
         /// <param name="receivedFrame"></param>
         private void ReceiveVersionCheck(Broker broker, long SocketId, Broker.Frame receivedFrame)
         {
-            if (!this.Available)
+            UInt16 clientVersion = BitConverter.ToUInt16(receivedFrame.DataBytes);
+
+            // Send the right version to the Worker if nécessary (Worker version better than Main)
+            SocketMiddleware.SocketInfos infos = broker.sm.GetSocketInfo(SocketId);
+            if (infos.NegociateVersion == null)
             {
-                UInt16 clientVersion = BitConverter.ToUInt16(receivedFrame.DataBytes);
-
-                // Send the right version to the Worker if nécessary (Worker version better than Main)
-                SocketMiddleware.SocketInfos infos = broker.sm.GetSocketInfo(SocketId);
-                if (infos.NegociateVersion == null)
-                {
-                    infos.NegociateVersion = clientVersion < broker.BrokerVersion ? clientVersion : broker.BrokerVersion;
-                    broker.sm.SetSocketInfo(SocketId, infos);
-                }
-
-                this.VersionCheck(broker, SocketId);
-
-                this.Init(broker, infos.NegociateVersion.ToString());
+                infos.NegociateVersion = clientVersion < broker.BrokerVersion ? clientVersion : broker.BrokerVersion;
+                broker.sm.SetSocketInfo(SocketId, infos);
             }
+
+            this.Init(broker, infos.NegociateVersion.ToString());
+
+            if(broker.sm.socketType == SocketMiddleware.SocketType.Server)
+            {
+                this.VersionCheck(broker, SocketId);
+            }
+
         }
 
         /// <summary>
