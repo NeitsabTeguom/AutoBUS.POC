@@ -8,19 +8,24 @@ using System.Threading.Tasks;
 
 namespace AutoBUS
 {
-    public partial class Config<TConfig> where TConfig : class, new()
+    public partial class ConfigManager
     {
         public string configFile { get; private set; }
 
-        public TConfig sc { get; set; } = new TConfig();
+        private AutoBUS.Broker.BrokerTypes brokerType;
 
-        public Config()
+        public ServiceConfig sc { get; set; }
+
+        public ConfigManager(AutoBUS.Broker.BrokerTypes brokerType)
         {
-            this.LoadConfig();
+            this.LoadConfig(brokerType);
         }
 
-        private void LoadConfig()
+        private void LoadConfig(AutoBUS.Broker.BrokerTypes brokerType)
         {
+            this.brokerType = brokerType;
+            this.sc = new ServiceConfig(this.brokerType);
+
             this.configFile = Paths.ConfigFile;
 
             // Save config file with default values if not exists
@@ -42,7 +47,7 @@ namespace AutoBUS
         {
             this.SetConfig();
 
-            string jsonConfig = JsonSerializer.Serialize<TConfig>(this.sc, new JsonSerializerOptions() { WriteIndented = true });
+            string jsonConfig = JsonSerializer.Serialize<ServiceConfig>(this.sc, new JsonSerializerOptions() { WriteIndented = true });
 
             File.WriteAllText(this.configFile, jsonConfig);
         }
@@ -51,18 +56,18 @@ namespace AutoBUS
         {
             string jsonConfig = File.ReadAllText(this.configFile);
 
-            this.sc = JsonSerializer.Deserialize<TConfig>(jsonConfig);
+            this.sc = JsonSerializer.Deserialize<ServiceConfig>(jsonConfig);
 
             this.SetConfig(this.sc);
         }
 
-        private void SetConfig(TConfig sc = null)
+        private void SetConfig(ServiceConfig sc = null)
         {
             if (this.sc == null)
             {
                 if (sc == null)
                 {
-                    this.sc = new TConfig();
+                    this.sc = new ServiceConfig(this.brokerType);
                 }
             }
         }

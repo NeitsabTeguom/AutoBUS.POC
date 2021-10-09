@@ -9,9 +9,7 @@ namespace AutoBUSWorker
 {
     public class Worker : BackgroundService
     {
-        private Config<Config.ServiceConfigWorker> config;
-
-        private SocketMiddleware sm = null;
+        private Broker broker;
 
         private readonly ILogger<Worker> _logger;
 
@@ -19,12 +17,9 @@ namespace AutoBUSWorker
         {
             try
             {
-                this.config = new Config<Config.ServiceConfigWorker>();
+                this.broker = new Broker(Broker.BrokerTypes.Worker);
 
                 _logger = logger;
-                this.sm = new SocketMiddleware(
-                    SocketMiddleware.SocketType.Client,
-                    checkInterval: this.config.sc.Broker.CheckInterval);
             }
             catch { }
         }
@@ -48,7 +43,7 @@ namespace AutoBUSWorker
             try
             {
                 _logger.LogInformation("Worker starting...");
-                this.sm.Start();
+                this.broker.Start();
             }
             catch { }
 
@@ -74,7 +69,7 @@ namespace AutoBUSWorker
             try
             {
                 _logger.LogInformation("Worker stopping...");
-                this.sm.Stop();
+                this.broker.Stop();
             }
             catch { }
         }

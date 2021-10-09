@@ -135,7 +135,7 @@ namespace AutoBUS
 
             this.Init(broker, infos.NegociateVersion.ToString());
 
-            if(broker.sm.socketType == SocketMiddleware.SocketType.Server)
+            if(broker.brokerType == Broker.BrokerTypes.Federator)
             {
                 this.VersionCheck(broker, SocketId);
             }
