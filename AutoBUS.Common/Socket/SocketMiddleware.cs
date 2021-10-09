@@ -240,7 +240,32 @@ namespace AutoBUS
         }
 
 		/// <summary>
-		///  Server only
+		///  
+		/// </summary>
+		/// <param name="SocketId"></param>
+		/// <returns></returns>
+		public SocketClient GetSocketClient(long SocketId)
+		{
+			switch (this.broker.brokerType)
+			{
+				case Broker.BrokerTypes.Federator:
+					{
+						if (this.sockets.ContainsKey(SocketId))
+						{
+							return this.sockets[SocketId];
+						}
+						break;
+					}
+				case Broker.BrokerTypes.Worker:
+					{
+						return this.client;
+					}
+			}
+			return null;
+		}
+
+		/// <summary>
+		///  
 		/// </summary>
 		/// <param name="SocketId"></param>
 		/// <returns></returns>
@@ -265,7 +290,7 @@ namespace AutoBUS
 		}
 
 		/// <summary>
-		/// Server only
+		/// 
 		/// </summary>
 		/// <param name="SocketId"></param>
 		/// <param name="userData"></param>

@@ -43,6 +43,14 @@ namespace AutoBUS
 
         public class Frame
         {
+            public bool Available
+            {
+                get
+                {
+                    return this.ParsingError == null;
+                }
+            }
+            public Exception ParsingError { get; private set; } = null;
             private static class Utils
             {
                 // UTF8 par defaut
@@ -103,7 +111,6 @@ namespace AutoBUS
                 public uint? PartLength { get; private set; }
 
                 // Parameters
-
                 public Dictionary<string, string> Parameters { get; set; } = new Dictionary<string, string>();
             }
 
@@ -133,9 +140,27 @@ namespace AutoBUS
             // Buff -> Frame
             public Frame(byte[] buff)
             {
-                int cursor = 0;
-                this.GetHeader(buff, ref cursor);
-                this.GetData(buff, ref cursor);
+                try
+                {
+                    int cursor = 0;
+                    this.GetHeader(buff, ref cursor);
+                    // Check MessageName
+                    if (this.header.MessageName == null)
+                    {
+                        throw new Exception("Frame : missing MessageName on header.");
+                    }
+                    // Check RequestId not null or empty
+                    if (this.header.RequestId == null || this.header.RequestId.Trim() == "")
+                    {
+                        throw new Exception("Frame : missing RequestId on header.");
+                    }
+
+                    this.GetData(buff, ref cursor);
+                }
+                catch(Exception ex)
+                {
+                    this.ParsingError = ex;
+                }
             }
 
             // Frame -> Buff
@@ -351,17 +376,11 @@ namespace AutoBUS
         {
             Frame frame = new Frame(buff);
 
-            // Check MessageName
-            if (frame.header.MessageName == null)
+            // If frame not correct, so close connection (then worker reconnect and resend better)
+            if(!frame.Available)
             {
-                //this.ResponseError(SocketId, "", "missing MessageName.");
-                return;
-            }
-
-            // Check RequestId not null or empty
-            if (frame.header.RequestId == null || frame.header.RequestId.Trim() == "")
-            {
-                //this.ResponseError(SocketId, "", "missing RequestId.");
+                Sockets.SocketClient sc = this.sm.GetSocketClient(SocketId);
+                sc.Close();
                 return;
             }
 
