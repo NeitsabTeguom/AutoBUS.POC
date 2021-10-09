@@ -11,7 +11,7 @@ namespace AutoBUS.Sockets
     /// </summary>
     public class SocketListener
     {
-        public Config<Config.ServiceConfigMain> config { get; private set; } = new Config<Config.ServiceConfigMain>();
+        private Broker broker;
 
         /// <summary>
         /// The class that handle socket events.
@@ -60,18 +60,20 @@ namespace AutoBUS.Sockets
         /// Listen on port and accept connections.
         /// </summary>
         /// <param name="port">Port to listen to.</param>
-        public void Listen()
+        public void Listen(Broker broker)
         {
+            this.broker = broker;
+
             // create listener and start
-            this.Port = config.sc.Broker.Port;
+            this.Port = this.broker.configManager.sc.Broker.Port;
 
             // Establish the local endpoint for the socket.
             // The DNS name of the computer
             // running the listener is "host.contoso.com".
             string ListenHost = Dns.GetHostName();
-            if (this.config.sc.Broker.ListenHost != null && this.config.sc.Broker.ListenHost.Trim() != "")
+            if (this.broker.configManager.sc.Broker.Federator.ListenHost != null && this.broker.configManager.sc.Broker.Federator.ListenHost.Trim() != "")
             {
-                ListenHost = this.config.sc.Broker.ListenHost;
+                ListenHost = this.broker.configManager.sc.Broker.Federator.ListenHost;
             }
             IPHostEntry ipHostInfo = Dns.GetHostEntry(ListenHost);
             IPAddress ipAddress = ipHostInfo.AddressList[ipHostInfo.AddressList.Length-1];
@@ -87,7 +89,7 @@ namespace AutoBUS.Sockets
             try
             {
                 listener.Bind(localEndPoint);
-                listener.Listen(this.config.sc.Broker.ListenBacklog);
+                listener.Listen(this.broker.configManager.sc.Broker.Federator.ListenBacklog);
                 // accept connections in endless loop until set to false
                 IsListening = true;
                 while (IsListening)
@@ -131,11 +133,11 @@ namespace AutoBUS.Sockets
         /// <summary>
         /// Listen on port and accept connections in background.
         /// </summary>
-        public void ListenAsync()
+        public void ListenAsync(Broker broker)
         {
             Task.Factory.StartNew(() =>
             {
-                Listen();
+                Listen(broker);
             });
         }
 

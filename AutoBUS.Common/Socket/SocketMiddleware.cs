@@ -8,13 +8,7 @@ namespace AutoBUS
 {
     public class SocketMiddleware
 	{
-		public enum SocketType
-        {
-			Server,
-			Client
-        }
-
-		public SocketType socketType { get; private set; }
+		private Broker broker;
 
 		/// <summary>
 		/// Socket client
@@ -45,21 +39,15 @@ namespace AutoBUS
 			public Messages messages = new Messages();
         }
 
-		private Broker broker;
-
-		public SocketMiddleware(
-			SocketType socketType,
-			double checkInterval = 1000)
+		public SocketMiddleware(Broker broker)
 		{
+			this.broker = broker;
 
 			this.checkTimer = new Timer();
 			this.checkTimer.Enabled = false;
-			this.checkTimer.Interval = checkInterval;
+			this.checkTimer.Interval = this.broker.configManager.sc.Broker.CheckInterval;
 			this.checkTimer.AutoReset = true;
 			this.checkTimer.Elapsed += CheckTimer_Elapsed;
-
-			// begin with broker, because it must be available before message coming
-			this.broker = new Broker(this);
 
 			// create new server with default event listener and add some events
 			this.listener = new EventsListener()
@@ -71,23 +59,21 @@ namespace AutoBUS
 				OnExceptionHandler = OnExceptionHandler
 			};
 
-			this.socketType = socketType;
-
 			this.Init();
 		}
 
 		private void Init()
         {
-			switch (this.socketType)
+			switch (this.broker.brokerType)
 			{
-				case SocketType.Server:
+				case Broker.BrokerTypes.Federator:
 					{
 						this.server = new SocketListener(this.listener);
 						break;
 					}
-				case SocketType.Client:
+				case Broker.BrokerTypes.Worker:
 					{
-						this.client = new SocketClient(this.listener);
+						this.client = new SocketClient(this.listener, this.broker);
 						break;
 					}
 			}
@@ -98,9 +84,9 @@ namespace AutoBUS
 			this.checkTimer.Stop();
 			try
 			{
-				switch (this.socketType)
+				switch (this.broker.brokerType)
 				{
-					case SocketType.Server:
+					case Broker.BrokerTypes.Federator:
 						{
 							if (this.server == null || !this.server.IsListening)
 							{
@@ -114,7 +100,7 @@ namespace AutoBUS
 							}
 							break;
 						}
-					case SocketType.Client:
+					case Broker.BrokerTypes.Worker:
 						{
 							if (this.client == null || !this.client.Connected)
 							{
@@ -141,23 +127,22 @@ namespace AutoBUS
 		{
 			try
 			{
-				switch (this.socketType)
+				switch (this.broker.brokerType)
 				{
-					case SocketType.Server:
+					case Broker.BrokerTypes.Federator:
 						{
-							this.server?.ListenAsync();
+							this.server?.ListenAsync(this.broker);
 							Console.WriteLine("Listener running...");
 							break;
 						}
-					case SocketType.Client:
+					case Broker.BrokerTypes.Worker:
 						{
 							this.client?.StartReadingMessages();
 							Console.WriteLine("Client running...");
 
-							if (this.socketType == SocketType.Client)
-							{
-								this.GetSocketInfo(-1).messages.VersionCheck(this.broker, -1);
-							}
+
+							this.GetSocketInfo(-1).messages.VersionCheck(this.broker, -1);
+
 							break;
 						}
 				}
@@ -182,14 +167,14 @@ namespace AutoBUS
 				this.Close(SocketId);
             }
 
-			switch (this.socketType)
+			switch (this.broker.brokerType)
 			{
-				case SocketType.Server:
+				case Broker.BrokerTypes.Federator:
 					{
 						this.server?.StopListening();
 						break;
 					}
-				case SocketType.Client:
+				case Broker.BrokerTypes.Worker:
 					{
 						this.client?.StopReadingMessages();
 						break;
@@ -205,9 +190,9 @@ namespace AutoBUS
 		/// <returns></returns>
 		public bool Send(long SocketId, byte[] data)
 		{
-			switch (this.socketType)
+			switch (this.broker.brokerType)
 			{
-				case SocketType.Server:
+				case Broker.BrokerTypes.Federator:
 					{
 						if (this.sockets.ContainsKey(SocketId))
 						{
@@ -216,7 +201,7 @@ namespace AutoBUS
 						}
 						break;
 					}
-				case SocketType.Client:
+				case Broker.BrokerTypes.Worker:
 					{
 						this.client.SendMessage(data);
 						return true;
@@ -232,9 +217,9 @@ namespace AutoBUS
 		/// <returns></returns>
 		public bool Close(long SocketId)
 		{
-			switch (this.socketType)
+			switch (this.broker.brokerType)
 			{
-				case SocketType.Server:
+				case Broker.BrokerTypes.Federator:
 					{
 						if (this.sockets.ContainsKey(SocketId))
 						{
@@ -245,7 +230,7 @@ namespace AutoBUS
 						}
 						break;
 					}
-				case SocketType.Client:
+				case Broker.BrokerTypes.Worker:
 					{
 						this.client.Close();
 						return true;
@@ -261,9 +246,9 @@ namespace AutoBUS
 		/// <returns></returns>
 		public SocketInfos GetSocketInfo(long SocketId)
 		{
-			switch (this.socketType)
+			switch (this.broker.brokerType)
 			{
-				case SocketType.Server:
+				case Broker.BrokerTypes.Federator:
 					{
 						if (this.sockets.ContainsKey(SocketId))
 						{
@@ -271,7 +256,7 @@ namespace AutoBUS
 						}
 						break;
 					}
-				case SocketType.Client:
+				case Broker.BrokerTypes.Worker:
 					{
 						return (SocketInfos)(this.client.Infos ?? new SocketInfos());
 					}
@@ -286,14 +271,14 @@ namespace AutoBUS
 		/// <param name="userData"></param>
 		public void SetSocketInfo(long SocketId, SocketInfos infos)
 		{
-			switch (this.socketType)
+			switch (this.broker.brokerType)
 			{
-				case SocketType.Server:
+				case Broker.BrokerTypes.Federator:
 					{
 						this.sockets[SocketId].Infos = infos;
 						break;
 					}
-				case SocketType.Client:
+				case Broker.BrokerTypes.Worker:
 					{
 						this.client.Infos = infos;
 						break;

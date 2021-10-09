@@ -12,6 +12,16 @@ namespace AutoBUS
     // Message broker
     public class Broker
     {
+        public enum BrokerTypes
+        {
+            Federator,
+            Worker
+        }
+
+        public BrokerTypes brokerType { get; private set; }
+
+        public ConfigManager configManager { get; private set; }
+
         public class Options
         {
             public int MainServerNumber { get; set; }
@@ -310,13 +320,27 @@ namespace AutoBUS
             }
         }
 
-        public Broker(SocketMiddleware sm)
+        public Broker(BrokerTypes brokerType)
         {
             this.options = new Options();
             this.options.MainServerNumber = 1;
 
-            this.sm = sm;
+            this.brokerType = brokerType;
+            this.configManager = new ConfigManager(this.brokerType);
+            this.sm = new SocketMiddleware(this);
+
         }
+
+        public void Start()
+        {
+            this.sm.Start();
+        }
+
+        public void Stop()
+        {
+            this.sm.Stop();
+        }
+
 
         /// <summary>
         /// Incomming message

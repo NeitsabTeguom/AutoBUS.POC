@@ -12,7 +12,7 @@ namespace AutoBUS.Sockets
     /// </summary>
     public class SocketClient
     {
-        public Config<Config.ServiceConfigWorker> config { get; private set; } = new Config<Config.ServiceConfigWorker>();
+        private Broker broker;
 
         #region Members
         // State object for reading client data asynchronously
@@ -150,12 +150,13 @@ namespace AutoBUS.Sockets
         /// <param name="ip">IP to connect to or null to use localhost.</param>
         /// <param name="port">Port to connect to.</param>
         /// <param name="eventsListener">Object to handle socket events.</param>
-        public SocketClient(IEventsListener eventsListener)
+        public SocketClient(IEventsListener eventsListener, Broker broker)
         {
             try
             {
-                string ip = this.config.sc.Broker.Host;
-                int port = this.config.sc.Broker.Port;
+                this.broker = broker;
+                string ip = this.broker.configManager.sc.Broker.Worker.Host;
+                int port = this.broker.configManager.sc.Broker.Port;
 
                 // store events listener
                 _eventsListener = eventsListener;

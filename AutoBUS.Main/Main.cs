@@ -9,20 +9,15 @@ namespace AutoBUSMain
 {
     public class Main : BackgroundService
     {
-        private Config<Config.ServiceConfigMain> config;
-
-        private SocketMiddleware sm = null;
+        private Broker broker;
 
         private readonly ILogger<Main> _logger;
 
         public Main(ILogger<Main> logger)
         {
-            this.config = new Config<Config.ServiceConfigMain>();
+            this.broker = new Broker(Broker.BrokerTypes.Federator);
 
             _logger = logger;
-            this.sm = new SocketMiddleware(
-                SocketMiddleware.SocketType.Server,
-                checkInterval: this.config.sc.Broker.CheckInterval);
         }
 
         protected override Task ExecuteAsync(CancellationToken stoppingToken)
@@ -44,7 +39,7 @@ namespace AutoBUSMain
             try
             {
                 _logger.LogInformation("Main starting...");
-                this.sm.Start();
+                this.broker.Start();
             }
             catch { }
 
@@ -70,7 +65,7 @@ namespace AutoBUSMain
             try
             {
                 _logger.LogInformation("Main stopping...");
-                this.sm.Stop();
+                this.broker.Stop();
             }
             catch { }
         }
