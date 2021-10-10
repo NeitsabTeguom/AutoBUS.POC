@@ -49,6 +49,7 @@ namespace AutoBUS
 			this.checkTimer.AutoReset = true;
 			this.checkTimer.Elapsed += CheckTimer_Elapsed;
 
+
 			// create new server with default event listener and add some events
 			this.listener = new EventsListener()
 			{
@@ -92,7 +93,7 @@ namespace AutoBUS
 							{
 								try
 								{
-									this.server.StopListening();
+									this.Stop();
 									this.Init();
 									this.Start();
 								}
@@ -106,7 +107,7 @@ namespace AutoBUS
 							{
 								try
 								{
-									this.client.Close();
+									this.Stop();
 									this.Init();
 									this.Start();
 								}
@@ -151,7 +152,10 @@ namespace AutoBUS
 			{ 
 			}
 
-			//this.checkTimer.Start();
+			if (this.broker.configManager.sc.Broker.CheckInterval > 0)
+			{
+				this.checkTimer.Start();
+			}
 		}
 
         /// <summary>
@@ -159,7 +163,11 @@ namespace AutoBUS
         /// </summary>
         public void Stop()
 		{
-			this.checkTimer.Stop();
+
+			if (this.broker.configManager.sc.Broker.CheckInterval > 0)
+			{
+				this.checkTimer.Stop();
+			}
 
 			long[] keys = this.sockets.Keys.ToArray();
 			foreach (long SocketId in keys)
@@ -171,12 +179,14 @@ namespace AutoBUS
 			{
 				case Broker.BrokerTypes.Federator:
 					{
+						this.CloseAll();
 						this.server?.StopListening();
 						break;
 					}
 				case Broker.BrokerTypes.Worker:
 					{
 						this.client?.StopReadingMessages();
+						this.client?.Close();
 						break;
 					}
 			}
@@ -238,6 +248,16 @@ namespace AutoBUS
 			}
 			return false;
         }
+
+		public void CloseAll()
+        {
+			foreach (KeyValuePair<long, SocketClient> sc in this.sockets)
+			{
+				sc.Value.StopReadingMessages();
+				sc.Value.Close();
+			}
+			this.sockets.Clear();
+		}
 
 		/// <summary>
 		///  
