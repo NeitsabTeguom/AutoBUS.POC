@@ -9,7 +9,6 @@ namespace AutoBUS
     public class Messages
     {
         public bool Available { get; private set; } = false;
-        public bool Logged = false;
 
         private Broker broker;
 
@@ -30,6 +29,8 @@ namespace AutoBUS
 
         public void Init(Broker broker, string BrokerVersion)
         {
+            this.Available = true;
+
             this.broker = broker;
 
             // For more time response, using "reflexion" instead "switch case"
@@ -112,23 +113,6 @@ namespace AutoBUS
             }
         }
 
-        private void SendExecute(long SocketId, string MessageName, object[] Parameters)
-        {
-            if (this.msf.ContainsKey(MessageName))
-            {
-                MethodInfo mi = this.msf[MessageName];
-
-                if (mi != null)
-                {
-                    Broker.Frame sendFrame = (Broker.Frame)mi.Invoke(this.ms, Parameters);
-                    if (sendFrame != null)
-                    {
-                        this.broker.Deliver(SocketId, sendFrame);
-                    }
-                }
-            }
-        }
-
         #region Version Check
 
         /// <summary>
@@ -146,25 +130,14 @@ namespace AutoBUS
             if (infos.NegociateVersion == null)
             {
                 infos.NegociateVersion = clientVersion < broker.BrokerVersion ? clientVersion : broker.BrokerVersion;
-                this.Available = true;
-                this.Init(broker, infos.NegociateVersion.ToString());
-                infos.messages = this;
                 broker.sm.SetSocketInfo(SocketId, infos);
             }
 
-            switch(broker.brokerType)
+            this.Init(broker, infos.NegociateVersion.ToString());
+
+            if(broker.brokerType == Broker.BrokerTypes.Federator)
             {
-                case Broker.BrokerTypes.Federator:
-                    {
-                        this.VersionCheck(broker, SocketId);
-                        break;
-                    }
-                case Broker.BrokerTypes.Worker:
-                    {
-                        // Logged in after version check
-                        this.SendExecute(SocketId, "Login", new object[] { SocketId });
-                        break;
-                    }
+                this.VersionCheck(broker, SocketId);
             }
 
         }

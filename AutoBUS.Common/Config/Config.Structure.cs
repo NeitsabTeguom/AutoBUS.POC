@@ -53,35 +53,6 @@ namespace AutoBUS
             public string ListenHost { get; set; } = "localhost";
             public int ListenBacklog { get; set; } = 100;
 
-            private Dictionary<string, Login> _Logins = new Dictionary<string, Login>();
-            public Dictionary<string, Login> Logins 
-            {
-                get
-                {
-                    if(this._Logins.Count == 0)
-                    {
-                        this._Logins = new Dictionary<string, Login>() { { "Worker", new Login() { Password = "w0rkH@rd!", Privileges = new Privileges() } } };
-                    }
-                    return this._Logins;
-                }
-                set
-                {
-                    this._Logins = value;
-                }
-            }
-        }
-
-        public class Login
-        {
-            public string Password { get; set; }
-
-            public Privileges Privileges { get; set; } = new Privileges();
-
-        }
-
-        public class Privileges
-        {
-            public bool TaskExecute { get; set; } = true;
         }
 
         #endregion Main service config
@@ -91,8 +62,6 @@ namespace AutoBUS
         public class Worker
         {
             public string Host { get; set; } = "localhost";
-            public string User { get; set; } = "Worker";
-            public string Password { get; set; } = "w0rkH@rd!";
         }
 
         #endregion Worker service config
