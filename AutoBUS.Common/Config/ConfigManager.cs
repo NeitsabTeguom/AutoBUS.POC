@@ -46,8 +46,12 @@ namespace AutoBUS
         private void SaveConfig()
         {
             this.SetConfig();
-
-            string jsonConfig = JsonSerializer.Serialize<ServiceConfig>(this.sc, new JsonSerializerOptions() { WriteIndented = true });
+                
+            string jsonConfig = JsonSerializer.Serialize<ServiceConfig>(this.sc, 
+                new JsonSerializerOptions() {
+                    WriteIndented = true, 
+                    DefaultIgnoreCondition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull 
+                });
 
             File.WriteAllText(this.configFile, jsonConfig);
         }

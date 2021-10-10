@@ -141,7 +141,6 @@ namespace AutoBUS
 							this.client?.StartReadingMessages();
 							Console.WriteLine("Client running...");
 
-
 							this.GetSocketInfo(-1).messages.VersionCheck(this.broker, -1);
 
 							break;
