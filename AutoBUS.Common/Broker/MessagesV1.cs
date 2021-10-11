@@ -48,9 +48,12 @@ namespace AutoBUS.MessagesV1
                                 // Ckeck password
                                 if (login.Password == passworkWorker)
                                 {
+                                    /*
                                     var si = broker.sm.GetSocketInfo(SocketId);
                                     si.messages.Logged = true;
                                     broker.sm.SetSocketInfo(SocketId, si);
+                                    */
+                                    this.messages.Logged = true;
                                 }
                             }
                         }
@@ -68,9 +71,12 @@ namespace AutoBUS.MessagesV1
                         {
                             // Federator logging response
                             string logged = receivedFrame.header.Parameters["Logged"];
+                            this.messages.Logged = bool.Parse(logged);
+                            /*
                             var si = broker.sm.GetSocketInfo(SocketId);
                             si.messages.Logged = bool.Parse(logged);
                             broker.sm.SetSocketInfo(SocketId, si);
+                            */
                         }
                         break;
                     }

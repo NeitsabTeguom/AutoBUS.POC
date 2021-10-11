@@ -110,7 +110,19 @@ namespace AutoBUS.Sockets
         /// <summary>
         /// Optional data you can attach to this socket.
         /// </summary>
-        public object Infos;
+        public SocketInfos Infos;
+
+        public class SocketInfos
+        {
+            public SocketInfos(Broker broker, SocketClient socket)
+            {
+                this.messages = new Messages(broker, socket);
+            }
+
+            public UInt16? NegociateVersion { get; set; } = null;
+
+            public Messages messages;
+        }
 
         // did we call the closed socket event?
         bool _wasClosedEventCalled;
@@ -154,6 +166,8 @@ namespace AutoBUS.Sockets
         {
             try
             {
+                this.Infos = new SocketInfos(broker, this);
+
                 this.broker = broker;
                 string ip = this.broker.configManager.sc.Broker.Worker.Host;
                 int port = this.broker.configManager.sc.Broker.Port;
@@ -217,10 +231,12 @@ namespace AutoBUS.Sockets
         /// </summary>
         /// <param name="socket">TCP client to wrap.</param>
         /// <param name="eventsListener">Object to handle socket events.</param>
-        public SocketClient(Socket handler, IEventsListener eventsListener)
+        public SocketClient(IEventsListener eventsListener, Socket handler, Broker broker)
         {
             try
             {
+                this.Infos = new SocketInfos(broker, this);
+
                 // store events listener
                 _eventsListener = eventsListener;
 

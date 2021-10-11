@@ -32,13 +32,6 @@ namespace AutoBUS
 
 		private Timer checkTimer;
 
-		public class SocketInfos
-        {
-			public UInt16? NegociateVersion { get; set; } = null;
-
-			public Messages messages = new Messages();
-        }
-
 		public SocketMiddleware(Broker broker)
 		{
 			this.broker = broker;
@@ -141,7 +134,7 @@ namespace AutoBUS
 							this.client?.StartReadingMessages();
 							Console.WriteLine("Client running...");
 
-							this.GetSocketInfo(-1).messages.VersionCheck(this.broker, -1);
+							this.client?.Infos.messages.VersionCheck(-1);
 
 							break;
 						}
@@ -283,53 +276,6 @@ namespace AutoBUS
 			return null;
 		}
 
-		/// <summary>
-		///  
-		/// </summary>
-		/// <param name="SocketId"></param>
-		/// <returns></returns>
-		public SocketInfos GetSocketInfo(long SocketId)
-		{
-			switch (this.broker.brokerType)
-			{
-				case Broker.BrokerTypes.Federator:
-					{
-						if (this.sockets.ContainsKey(SocketId))
-						{
-							return (SocketInfos)(this.sockets[SocketId].Infos ?? new SocketInfos());
-						}
-						break;
-					}
-				case Broker.BrokerTypes.Worker:
-					{
-						return (SocketInfos)(this.client.Infos ?? new SocketInfos());
-					}
-			}
-			return null;
-		}
-
-		/// <summary>
-		/// 
-		/// </summary>
-		/// <param name="SocketId"></param>
-		/// <param name="userData"></param>
-		public void SetSocketInfo(long SocketId, SocketInfos infos)
-		{
-			switch (this.broker.brokerType)
-			{
-				case Broker.BrokerTypes.Federator:
-					{
-						this.sockets[SocketId].Infos = infos;
-						break;
-					}
-				case Broker.BrokerTypes.Worker:
-					{
-						this.client.Infos = infos;
-						break;
-					}
-			}
-		}
-
 		private void OnNewConnectionHandler(SocketClient socket)
         {
 			this.sockets.Add(socket.SocketId, socket);
@@ -346,7 +292,7 @@ namespace AutoBUS
 		private void OnMessageReadHandler(SocketClient socket, byte[] data)
 		{
 			Console.WriteLine("Read message!");
-			this.broker.TakeIn(socket.SocketId, data);
+			this.broker.TakeIn(socket, data);
 		}
 
 		private void OnMessageSendHandler(SocketClient socket, byte[] data)

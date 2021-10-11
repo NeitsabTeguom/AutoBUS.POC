@@ -126,7 +126,7 @@ namespace AutoBUS.Sockets
             Socket listener = (Socket)ar.AsyncState;
             Socket handler = listener.EndAccept(ar);
 
-            var sock = new SocketClient(handler, EventsListener);
+            var sock = new SocketClient(EventsListener, handler, this.broker);
             sock.StartReadingMessages();
         }
 

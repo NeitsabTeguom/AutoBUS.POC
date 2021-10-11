@@ -372,22 +372,22 @@ namespace AutoBUS
         /// </summary>
         /// <param name="SocketId"></param>
         /// <param name="buff"></param>
-        public void TakeIn(long SocketId, byte[] buff)
+        public void TakeIn(Sockets.SocketClient socket, byte[] buff)
         {
             Frame frame = new Frame(buff);
 
             // If frame not correct, so close connection (then worker reconnect and resend better)
             if(!frame.Available)
             {
-                Sockets.SocketClient sc = this.sm.GetSocketClient(SocketId);
-                sc.Close();
+                //Sockets.SocketClient sc = this.sm.GetSocketClient(socket.SocketId);
+                socket.Close();
                 return;
             }
 
             try
             {
-                SocketMiddleware.SocketInfos si = this.sm.GetSocketInfo(SocketId);
-                si.messages.Receive(this, SocketId, frame);
+                //SocketMiddleware.SocketInfos si = this.sm.GetSocketInfo(socket.SocketId);
+                socket.Infos.messages.Receive(frame);
             }
             catch(Exception ex){this.Logger(ex);}
         }
