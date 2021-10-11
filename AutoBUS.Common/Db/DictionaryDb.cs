@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 
 namespace AutoBUS.Db
 {
-    class DictionaryDb<TKey, TValue> : Dictionary<TKey, TValue>
+    public class DictionaryDb<TKey, TValue> : Dictionary<TKey, TValue>
     {
         private string path;
         public DictionaryDb(string path)
@@ -20,8 +20,8 @@ namespace AutoBUS.Db
         {
             try
             {
-                this.Write(key, value);
                 base.Add(key, value);
+                this.Write(key, value);
             }
             catch { }
         }
@@ -53,6 +53,16 @@ namespace AutoBUS.Db
                 base.Clear();
             }
             catch { }
+        }
+
+        public new bool ContainsKey(TKey key)
+        {
+            if(!base.ContainsKey(key))
+            {
+                base[key] = this.Read(key);
+            }
+
+            return base.ContainsKey(key);
         }
 
         public new void Remove(TKey key)

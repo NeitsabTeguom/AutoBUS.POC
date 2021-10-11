@@ -13,26 +13,6 @@ namespace AutoBUS
         public class ServiceConfig
         {
             public Broker Broker { get; set; } = new Broker();
-
-            public ServiceConfig()
-            {
-            }
-            public ServiceConfig(AutoBUS.Broker.BrokerTypes brokerType)
-            {
-                switch(brokerType)
-                {
-                    case AutoBUS.Broker.BrokerTypes.Federator:
-                        {
-                            this.Broker.Worker = null;
-                            break;
-                        }
-                    case AutoBUS.Broker.BrokerTypes.Worker:
-                        {
-                            this.Broker.Federator = null;
-                            break;
-                        }
-                }
-            }
         }
 
         public class Broker
@@ -93,6 +73,7 @@ namespace AutoBUS
             public string Host { get; set; } = "localhost";
             public string User { get; set; } = "Worker";
             public string Password { get; set; } = "w0rkH@rd!";
+            public string WorkerID { get; set; } = null;
         }
 
         #endregion Worker service config

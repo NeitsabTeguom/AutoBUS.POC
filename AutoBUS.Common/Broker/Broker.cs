@@ -38,6 +38,13 @@ namespace AutoBUS
 
         public SocketMiddleware sm;
 
+        public class WorkerInfos
+        {
+            public byte Processor { get; set; }
+            public byte Memory { get; set; }
+        }
+
+        public Db.DictionaryDb<string, WorkerInfos> Workers;
 
         public UInt16 BrokerVersion { get; private set; } = 1;
 
@@ -352,6 +359,7 @@ namespace AutoBUS
 
             this.brokerType = brokerType;
             this.configManager = new ConfigManager(this.brokerType);
+            this.Workers = brokerType == BrokerTypes.Federator ? new Db.DictionaryDb<string, WorkerInfos>(Paths.DbWorkerPath) : null;
             this.sm = new SocketMiddleware(this);
 
         }
@@ -391,23 +399,6 @@ namespace AutoBUS
             }
             catch(Exception ex){this.Logger(ex);}
         }
-        /*
-        /// <summary>
-        /// Outgoing message
-        /// </summary>
-        /// <param name="SocketId"></param>
-        /// <param name="buff"></param>
-        public void Deliver(long SocketId, byte[] buff)
-        {
-            StackTrace stackTrace = new StackTrace();
-            string MessageName = stackTrace.GetFrame(1).GetMethod().Name;
-            string RequestId = this.options.MainServerNumber.ToString() + "_" + Guid.NewGuid().ToString();
-
-            Frame frame = new Frame(MessageName, RequestId);
-            frame.DataBytes = buff;
-
-            this.sm.Send(SocketId, frame.GetBuffer());
-        }*/
 
         /// <summary>
         /// Outgoing message

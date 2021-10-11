@@ -29,6 +29,8 @@ namespace AutoBUS.MessagesV1
             {
                 case Broker.BrokerTypes.Federator:
                     {
+                        string workerID = null;
+
                         this.messages.Logged = false;
 
                         // Frame must contains User and Passwork to login
@@ -48,12 +50,19 @@ namespace AutoBUS.MessagesV1
                                 // Ckeck password
                                 if (login.Password == passworkWorker)
                                 {
-                                    /*
-                                    var si = broker.sm.GetSocketInfo(SocketId);
-                                    si.messages.Logged = true;
-                                    broker.sm.SetSocketInfo(SocketId, si);
-                                    */
                                     this.messages.Logged = true;
+
+                                    // Has worker ID / otherwise give it new for first access
+                                    if(receivedFrame.header.Parameters.ContainsKey("WorkerID"))
+                                    {
+                                        Broker.WorkerInfos wi = this.broker.Workers[receivedFrame.header.Parameters["WorkerID"]]; // Force reading in DB
+                                    }
+                                    else
+                                    {
+                                        workerID = Guid.NewGuid().ToString();
+                                        this.broker.Workers[workerID] = new Broker.WorkerInfos(); // Force writing in DB
+                                    }
+                                    
                                 }
                             }
                         }
@@ -61,6 +70,10 @@ namespace AutoBUS.MessagesV1
                         // Response
                         Broker.Frame frame = new Broker.Frame();
                         frame.header.Parameters.Add("Logged", this.messages.Logged.ToString());
+                        if(workerID != null)
+                        {
+                            frame.header.Parameters.Add("WorkerID", workerID);
+                        }
                         this.messages.Send(SocketId, frame);
 
                         break;
@@ -71,12 +84,13 @@ namespace AutoBUS.MessagesV1
                         {
                             // Federator logging response
                             string logged = receivedFrame.header.Parameters["Logged"];
+                            if(receivedFrame.header.Parameters.ContainsKey("WorkerID"))
+                            {
+                                string workerID = receivedFrame.header.Parameters["WorkerID"];
+                                this.broker.configManager.sc.Broker.Worker.WorkerID = workerID;
+                                this.broker.configManager.SaveConfig();
+                            }
                             this.messages.Logged = bool.Parse(logged);
-                            /*
-                            var si = broker.sm.GetSocketInfo(SocketId);
-                            si.messages.Logged = bool.Parse(logged);
-                            broker.sm.SetSocketInfo(SocketId, si);
-                            */
                         }
                         break;
                     }
@@ -110,6 +124,10 @@ namespace AutoBUS.MessagesV1
                 Broker.Frame frame = new Broker.Frame();
                 frame.header.Parameters.Add("User", this.broker.configManager.sc.Broker.Worker.User);
                 frame.header.Parameters.Add("Password", this.broker.configManager.sc.Broker.Worker.Password);
+                if(this.broker.configManager.sc.Broker.Worker.WorkerID != null)
+                {
+                    frame.header.Parameters.Add("WorkerID", this.broker.configManager.sc.Broker.Worker.WorkerID);
+                }
                 this.messages.Send(SocketId, frame);
             }
         }

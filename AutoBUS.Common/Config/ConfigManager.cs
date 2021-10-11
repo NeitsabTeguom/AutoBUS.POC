@@ -24,7 +24,8 @@ namespace AutoBUS
         private void LoadConfig(AutoBUS.Broker.BrokerTypes brokerType)
         {
             this.brokerType = brokerType;
-            this.sc = new ServiceConfig(this.brokerType);
+            this.sc = new ServiceConfig();
+            this.SetConfigType();
 
             this.configFile = Paths.ConfigFile;
 
@@ -43,7 +44,7 @@ namespace AutoBUS
 
         }
 
-        private void SaveConfig()
+        public void SaveConfig()
         {
             this.SetConfig();
                 
@@ -69,10 +70,25 @@ namespace AutoBUS
         {
             if (this.sc == null)
             {
-                if (sc == null)
-                {
-                    this.sc = new ServiceConfig(this.brokerType);
-                }
+                this.sc = sc != null ? sc : new ServiceConfig();
+            }
+            this.SetConfigType();
+        }
+
+        private void SetConfigType()
+        {
+            switch (this.brokerType)
+            {
+                case AutoBUS.Broker.BrokerTypes.Federator:
+                    {
+                        this.sc.Broker.Worker = null;
+                        break;
+                    }
+                case AutoBUS.Broker.BrokerTypes.Worker:
+                    {
+                        this.sc.Broker.Federator = null;
+                        break;
+                    }
             }
         }
     }

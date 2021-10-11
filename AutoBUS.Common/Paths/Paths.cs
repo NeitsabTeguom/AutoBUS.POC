@@ -25,5 +25,39 @@ namespace AutoBUS
                 return Path.Combine(ExecutingAssemblyPath, "config.json");
             }
         }
+
+        public static string DbPath
+        {
+            get
+            {
+                string dbPath = Path.Combine(ExecutingAssemblyPath, "db");
+                if(!Directory.Exists(dbPath))
+                {
+                    try
+                    {
+                        Directory.CreateDirectory(dbPath);
+                    }
+                    catch { }
+                }
+                return dbPath;
+            }
+        }
+
+        public static string DbWorkerPath
+        {
+            get
+            {
+                string dbWorkerPath = Path.Combine(DbPath, "worker");
+                if (!Directory.Exists(dbWorkerPath))
+                {
+                    try
+                    {
+                        Directory.CreateDirectory(dbWorkerPath);
+                    }
+                    catch { }
+                }
+                return dbWorkerPath;
+            }
+        }
     }
 }
