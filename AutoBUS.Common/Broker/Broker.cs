@@ -359,7 +359,7 @@ namespace AutoBUS
 
             this.brokerType = brokerType;
             this.configManager = new ConfigManager(this.brokerType);
-            this.Workers = brokerType == BrokerTypes.Federator ? new Db.DictionaryDb<string, WorkerInfos>(Paths.DbWorkerPath) : null;
+            this.Workers = brokerType == BrokerTypes.Federator ? new Db.DictionaryDb<string, WorkerInfos>(Paths.DbPath, "worker") : null;
             this.sm = new SocketMiddleware(this);
 
         }
@@ -392,6 +392,8 @@ namespace AutoBUS
                 return;
             }
 
+            // TODO : Ecrit le fichier message
+
             try
             {
                 //SocketMiddleware.SocketInfos si = this.sm.GetSocketInfo(socket.SocketId);
@@ -417,7 +419,10 @@ namespace AutoBUS
             string RequestId = this.options.MainServerNumber.ToString() + "_" + Guid.NewGuid().ToString();
             sendFrame.header.RequestId = RequestId; // If not set only
 
-            this.sm.Send(SocketId, sendFrame.GetBuffer());
+            if(this.sm.Send(SocketId, sendFrame.GetBuffer()))
+            {
+                // TODO : Supprimer le fichier message
+            }
         }
 
         public void Logger(Exception ex)

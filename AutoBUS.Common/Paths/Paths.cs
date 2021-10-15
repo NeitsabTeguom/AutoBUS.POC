@@ -42,22 +42,5 @@ namespace AutoBUS
                 return dbPath;
             }
         }
-
-        public static string DbWorkerPath
-        {
-            get
-            {
-                string dbWorkerPath = Path.Combine(DbPath, "worker");
-                if (!Directory.Exists(dbWorkerPath))
-                {
-                    try
-                    {
-                        Directory.CreateDirectory(dbWorkerPath);
-                    }
-                    catch { }
-                }
-                return dbWorkerPath;
-            }
-        }
     }
 }

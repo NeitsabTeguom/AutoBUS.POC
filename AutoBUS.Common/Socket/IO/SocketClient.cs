@@ -94,7 +94,16 @@ namespace AutoBUS.Sockets
         /// <summary>
         /// Get if socket is connected.
         /// </summary>
-        public bool Connected { get { return Client.Connected; } }
+        public bool Connected { get { return this.IsConnected(this.Client); } }
+
+        private bool IsConnected(Socket socket)
+        {
+            try
+            {
+                return !(socket.Poll(1000, SelectMode.SelectRead) && socket.Available == 0);
+            }
+            catch (SocketException) { return false; }
+        }
 
         /// <summary>
         /// Get if socket is reading.
@@ -205,6 +214,7 @@ namespace AutoBUS.Sockets
             catch (Exception e)
             {
                 HandleException(e);
+                return;
             }
 
             // invoke event
@@ -332,7 +342,7 @@ namespace AutoBUS.Sockets
         #region Send Methods
 
 
-        public void SendMessage(byte[] data)
+        public bool SendMessage(byte[] data)
         {
             if (this.Client != null)
             {
@@ -356,19 +366,49 @@ namespace AutoBUS.Sockets
                 // merge and send size + data
                 Buffer.BlockCopy(data, 0, msgBuffer, 4, data.Length);
 
-                // Begin sending the data to the remote device.
-                this.Client.BeginSend(
-                    msgBuffer,
-                    0,
-                    msgBuffer.Length,
-                    SocketFlags.None,
-                    new AsyncCallback(SendCallback),
-                    null);
+                try
+                {
+
+                    if(this.Connected)
+                    {
+                        /*
+                        this.Client.Send(
+                            msgBuffer,
+                            0,
+                            msgBuffer.Length,
+                            SocketFlags.None);*/
+                        // Begin sending the data to the remote device.
+                        this.Client.BeginSend(
+                            msgBuffer,
+                            0,
+                            msgBuffer.Length,
+                            SocketFlags.None,
+                            new AsyncCallback(SendCallback),
+                            null);
+                    }
+                    else
+                    {
+                        this.Close();
+                        return false;
+                    }
+                }
+                catch (SocketException e)
+                {
+                    HandleException(e);
+                    return false;
+                }
+                catch (Exception e)
+                {
+                    HandleException(e);
+                    return false;
+                }
 
                 // invoke events
                 _eventsListener.OnMessageSend(this, msgBuffer);
                 _eventsListener.OnDataSend(this, data);
+                return true;
             }
+            return false;
         }
 
 

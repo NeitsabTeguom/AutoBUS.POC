@@ -11,9 +11,17 @@ namespace AutoBUS.Db
     public class DictionaryDb<TKey, TValue> : Dictionary<TKey, TValue>
     {
         private string path;
-        public DictionaryDb(string path)
+        public DictionaryDb(string path, string name)
         {
-            this.path = path;
+            this.path = Path.Combine(path, name);
+            if (!Directory.Exists(this.path))
+            {
+                try
+                {
+                    Directory.CreateDirectory(this.path);
+                }
+                catch { }
+            }
         }
 
         public new void Add(TKey key, TValue value)

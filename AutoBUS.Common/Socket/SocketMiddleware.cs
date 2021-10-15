@@ -56,21 +56,22 @@ namespace AutoBUS
 			this.Init();
 		}
 
-		private void Init()
+		private bool Init()
         {
 			switch (this.broker.brokerType)
 			{
 				case Broker.BrokerTypes.Federator:
 					{
 						this.server = new SocketListener(this.listener);
-						break;
+						return this.server.IsListening;
 					}
 				case Broker.BrokerTypes.Worker:
 					{
 						this.client = new SocketClient(this.listener, this.broker);
-						break;
+						return this.client.Connected;
 					}
 			}
+			return false;
 		}
 
         private void CheckTimer_Elapsed(object sender, ElapsedEventArgs e)
@@ -87,8 +88,10 @@ namespace AutoBUS
 								try
 								{
 									this.Stop();
-									this.Init();
-									this.Start();
+									if(this.Init())
+									{
+										this.Start();
+									}
 								}
 								catch { }
 							}
@@ -101,8 +104,10 @@ namespace AutoBUS
 								try
 								{
 									this.Stop();
-									this.Init();
-									this.Start();
+									if(this.Init())
+									{
+										this.Start();
+									}
 								}
 								catch { }
 							}
@@ -198,15 +203,13 @@ namespace AutoBUS
 					{
 						if (this.sockets.ContainsKey(SocketId))
 						{
-							this.sockets[SocketId].SendMessage(data);
-							return true;
+							return this.sockets[SocketId].SendMessage(data);
 						}
 						break;
 					}
 				case Broker.BrokerTypes.Worker:
 					{
-						this.client.SendMessage(data);
-						return true;
+						return this.client.SendMessage(data);
 					}
 			}
 			return false;
@@ -281,6 +284,8 @@ namespace AutoBUS
 			this.sockets.Add(socket.SocketId, socket);
 			Console.WriteLine("Connected!");
 			//socket.StartReadingMessages(); // <-- this will make the new socket listen to incoming messages and trigger events.
+
+			// TODO : reprise des fichiers messages non envoyés
 		}
 
 		private void OnConnectionClosedHandler(SocketClient socket)
