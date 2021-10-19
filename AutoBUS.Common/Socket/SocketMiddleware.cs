@@ -237,6 +237,7 @@ namespace AutoBUS
 					}
 				case Broker.BrokerTypes.Worker:
 					{
+						this.client.StopReadingMessages();
 						this.client.Close();
 						return true;
 					}

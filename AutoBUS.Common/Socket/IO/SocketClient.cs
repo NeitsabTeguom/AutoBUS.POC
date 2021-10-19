@@ -100,9 +100,12 @@ namespace AutoBUS.Sockets
         {
             try
             {
-                return !(socket.Poll(1000, SelectMode.SelectRead) && socket.Available == 0);
+                return !socket.Poll(10000, SelectMode.SelectRead) && socket.Available == 0;
             }
-            catch (SocketException) { return false; }
+            catch (Exception) 
+            { 
+                return false; 
+            }
         }
 
         /// <summary>
@@ -203,13 +206,17 @@ namespace AutoBUS.Sockets
                     ipAddress.AddressFamily,
                     SocketType.Stream,
                     ProtocolType.Tcp);
+
+                this.Client.SetSocketOption(SocketOptionLevel.Socket, SocketOptionName.KeepAlive, true);
+                LingerOption lingerOption = new LingerOption (true, 10);
+                this.Client.SetSocketOption(SocketOptionLevel.Socket, SocketOptionName.Linger, lingerOption);
                 /*
                 // Connect to the remote endpoint.  
                 this.Client.BeginConnect(remoteEP,
                     new AsyncCallback(ConnectCallback), 
                     this.Client);
                 */
-                this.Client.Connect(ip, port);
+                this.Client.Connect(remoteEP);
             }
             catch (Exception e)
             {
@@ -269,7 +276,7 @@ namespace AutoBUS.Sockets
         /// </summary>
         ~SocketClient()
         {
-            Close();
+            this.Close();
         }
 
         public void StartReadingMessages()
@@ -354,12 +361,6 @@ namespace AutoBUS.Sockets
 
                 // to encode message size
                 byte[] msgBuffer = new byte[this.FrameLengthByteNumber + data.Length];
-                /*
-                // could optionally call BitConverter.GetBytes(data.length);
-                msgBuffer[0] = (byte)data.Length;
-                msgBuffer[1] = (byte)(data.Length >> 8);
-                msgBuffer[2] = (byte)(data.Length >> 16);
-                msgBuffer[3] = (byte)(data.Length >> 24);*/
 
                 this.FrameLength(data.Length, ref msgBuffer);
 
