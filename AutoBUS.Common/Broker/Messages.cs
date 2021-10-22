@@ -108,6 +108,8 @@ namespace AutoBUS
                     {
                         this.tasks.Remove(taskID);
                         this.broker.Deliver(SocketId, sendFrame);
+                        // Delete incoming message after writing outgoing message
+                        this.broker.DeleteIncoming(receiveFrame.header.RequestId);
                     }
                 }
             }

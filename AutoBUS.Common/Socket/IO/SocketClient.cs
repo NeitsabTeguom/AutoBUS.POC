@@ -74,24 +74,6 @@ namespace AutoBUS.Sockets
         private static long _nextSocketId = 0;
 
         /// <summary>
-        /// Function used to convert string to bytes array.
-        /// Override this if you need different encoding.
-        /// </summary>
-        public static Func<string, byte[]> StringToBytes = (string str) =>
-        {
-            return Encoding.UTF8.GetBytes(str);
-        };
-
-        /// <summary>
-        /// Function used to convert bytes array to string.
-        /// Override this if you need different encoding.
-        /// </summary>
-        public static Func<byte[], string> BytesToString = (byte[] bytes) =>
-        {
-            return Encoding.UTF8.GetString(bytes);
-        };
-
-        /// <summary>
         /// Get if socket is connected.
         /// </summary>
         public bool Connected { get { return this.IsConnected(this.Client); } }
@@ -138,12 +120,12 @@ namespace AutoBUS.Sockets
 
         // did we call the closed socket event?
         bool _wasClosedEventCalled;
-
+/*
         /// <summary>
         /// Default IP to use when creating socket with dest ip == null.
         /// </summary>
         public static string DefaultDestIp = IPAddress.Loopback.ToString();
-
+*/
         #endregion
 
         #region Constructors and Destructors

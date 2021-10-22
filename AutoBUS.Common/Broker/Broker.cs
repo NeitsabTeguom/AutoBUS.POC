@@ -38,6 +38,7 @@ namespace AutoBUS
 
         public SocketMiddleware sm;
 
+        #region Workers files db
         public class WorkerInfos
         {
             public byte Processor { get; set; }
@@ -45,6 +46,19 @@ namespace AutoBUS
         }
 
         public Db.DictionaryDb<string, WorkerInfos> Workers;
+        #endregion Workers files db
+
+        #region Messages files db
+        public class FrameInfos
+        {
+            public enum States { Ready, Blocked }
+            public States State { get; set; } = States.Ready;
+            public Frame Frame { get; set; }
+        }
+
+        public Db.DictionaryDb<string, FrameInfos> Incoming;
+        public Db.DictionaryDb<string, FrameInfos> Outgoing;
+        #endregion Messages files db
 
         public UInt16 BrokerVersion { get; private set; } = 1;
 
@@ -360,6 +374,10 @@ namespace AutoBUS
             this.brokerType = brokerType;
             this.configManager = new ConfigManager(this.brokerType);
             this.Workers = brokerType == BrokerTypes.Federator ? new Db.DictionaryDb<string, WorkerInfos>(Paths.DbPath, "worker") : null;
+            this.Incoming = new Db.DictionaryDb<string, FrameInfos>(Paths.DbPath, "incoming");
+            this.Incoming.Open();
+            this.Outgoing = new Db.DictionaryDb<string, FrameInfos>(Paths.DbPath, "outgoing");
+            this.Incoming.Open();
             this.sm = new SocketMiddleware(this);
 
         }
@@ -387,19 +405,28 @@ namespace AutoBUS
             // If frame not correct, so close connection (then worker reconnect and resend better)
             if(!frame.Available)
             {
-                //Sockets.SocketClient sc = this.sm.GetSocketClient(socket.SocketId);
                 socket.Close();
                 return;
             }
 
-            // TODO : Ecrit le fichier message
+            // Ecrit le fichier message en entrée
+            this.Incoming.Add(frame.header.RequestId, new FrameInfos() { Frame = frame });
 
             try
             {
-                //SocketMiddleware.SocketInfos si = this.sm.GetSocketInfo(socket.SocketId);
                 socket.Infos.messages.Receive(frame);
             }
             catch(Exception ex){this.Logger(ex);}
+        }
+
+        /// <summary>
+        /// Delete incoming message
+        /// </summary>
+        /// <param name="RequestId"></param>
+        public void DeleteIncoming(string RequestId)
+        {
+            // Supprime le fichier message en entrée
+            this.Incoming.Remove(RequestId);
         }
 
         /// <summary>
@@ -409,19 +436,34 @@ namespace AutoBUS
         /// <param name="buff"></param>
         public void Deliver(long SocketId, Frame sendFrame)
         {
-            if (sendFrame.header.MessageName == null)
+            if(sendFrame != null)
             {
-                StackTrace stackTrace = new StackTrace();
-                string MessageName = stackTrace.GetFrame(1).GetMethod().Name;
-                sendFrame.header.MessageName = MessageName; // If not set only
-            }
+                if (sendFrame.header.MessageName == null)
+                {
+                    StackTrace stackTrace = new StackTrace();
+                    string MessageName = stackTrace.GetFrame(1).GetMethod().Name;
+                    sendFrame.header.MessageName = MessageName; // If not set only
+                }
 
-            string RequestId = this.options.MainServerNumber.ToString() + "_" + Guid.NewGuid().ToString();
-            sendFrame.header.RequestId = RequestId; // If not set only
+                string RequestId = this.options.MainServerNumber.ToString() + "_" + Guid.NewGuid().ToString();
+                sendFrame.header.RequestId = RequestId; // If not set only
 
-            if(this.sm.Send(SocketId, sendFrame.GetBuffer()))
-            {
-                // TODO : Supprimer le fichier message
+                // Create message in outgoing queue
+                if(!this.Outgoing.ContainsKey(sendFrame.header.RequestId))
+                {
+                    this.Outgoing.Add(sendFrame.header.RequestId, new FrameInfos() { Frame = sendFrame });
+                }
+
+                if(this.sm.Send(SocketId, sendFrame.GetBuffer()))
+                {
+                    // Delete outgoing message after send ok
+                    this.Outgoing.Remove(sendFrame.header.RequestId);
+                }
+                else
+                {
+                    // Inform to try again
+                    this.Outgoing[sendFrame.header.RequestId].State = FrameInfos.States.Blocked;
+                }
             }
         }
 
